@@ -2,7 +2,9 @@
 
 namespace App\Exceptions;
 
+use App\dict\Codes;
 use Exception;
+use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 
 class Handler extends ExceptionHandler
@@ -50,6 +52,13 @@ class Handler extends ExceptionHandler
      */
     public function render($request, Exception $exception)
     {
+        if ($exception instanceof AuthenticationException) {
+            return response()->json([
+                "code" => Codes::CODE_TOKEN_EXPIRE,
+                "message" => Codes::getMessageByCode(Codes::CODE_TOKEN_EXPIRE),
+                "data" => []
+            ])->setStatusCode(Codes::STATUS_CODE_NOT_AUTHORIZATION);
+        }
         return parent::render($request, $exception);
     }
 }

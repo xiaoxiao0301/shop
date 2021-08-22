@@ -33,4 +33,16 @@ class UserServciesImpl implements \App\Services\UserServicesInterface
     {
         return User::insert($user);
     }
+
+
+    /**
+     * 根据手机号查询用户信息
+     *
+     * @param string $phone
+     * @return User|\Illuminate\Database\Eloquent\Builder|\Illuminate\Database\Eloquent\Model|object
+     */
+    public function getUserInfoByUserPhone(string $phone)
+    {
+        return User::query()->where("phone", $phone)->first();
+    }
 }

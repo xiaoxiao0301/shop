@@ -14,13 +14,6 @@ use Mews\Captcha\Captcha;
 
 class CaptchasController extends BaseController
 {
-    public $userSerivce;
-
-    public function __construct()
-    {
-        $this->userSerivce = new UserServciesImpl();
-    }
-
     /**
      * 获取验证码信息
      *

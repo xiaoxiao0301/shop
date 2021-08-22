@@ -12,6 +12,7 @@ class Codes
     public const CODE_CAPTCHA_EXPIRE = 1002; // 验证码已过期
     public const CODE_CAPTCHA_INVALID = 1003; // 验证码错误
     public const CODE_NETWORK_BUSY = 1004; // 网络异常，请稍后再试
+    public const CODE_TOKEN_EXPIRE = 1005; // 为传递token或token过期
 
     public static $message = [
         self::CODE_SUCCESS => "成功",
@@ -20,6 +21,7 @@ class Codes
         self::CODE_CAPTCHA_EXPIRE => "验证码已过期",
         self::CODE_CAPTCHA_INVALID => "验证码错误",
         self::CODE_NETWORK_BUSY => "网络异常",
+        self::CODE_TOKEN_EXPIRE => "请重新登陆",
     ];
 
 

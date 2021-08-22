@@ -3,10 +3,18 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Services\impl\UserServciesImpl;
 use Illuminate\Http\Request;
 
 class BaseController extends Controller
 {
+    public $userSerivce;
+
+    public function __construct()
+    {
+        $this->userSerivce = new UserServciesImpl();
+    }
+
     /**
      * 前端接口统一返回格式
      *
