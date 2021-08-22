@@ -1,7 +1,5 @@
 <?php
 
-use Illuminate\Http\Request;
-
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -13,6 +11,15 @@ use Illuminate\Http\Request;
 |
 */
 
-Route::middleware('auth:api')->get('/user', function (Request $request) {
-    return $request->user();
+$version = "v1";
+
+Route::prefix($version)->group(function () {
+
+    // 获取验证码
+    Route::post("captcha", "Api\CaptchasController@info")->name("api.captcha.info");
+    // 短信验证码
+    Route::post("code", "Api\VerificationCodesController@check")->name("api.captcha.check");
 });
+
+
+
