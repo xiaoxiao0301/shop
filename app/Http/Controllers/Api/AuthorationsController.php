@@ -8,6 +8,7 @@ use App\Http\Requests\Api\CaptchaRequest;
 use App\Http\Requests\Api\LoginRequest;
 use App\Models\User;
 use Carbon\Carbon;
+use Godruoyi\Snowflake\Snowflake;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
@@ -16,7 +17,7 @@ use Overtrue\EasySms\Exceptions\NoGatewayAvailableException;
 
 class AuthorationsController extends BaseController
 {
-   public function store(AuthorizationRequest $request)
+   public function store(AuthorizationRequest $request, Snowflake $snowflake)
     {
         $codeCacheInfo = Cache::get($request->code_key);
         if (!$codeCacheInfo) {
@@ -43,6 +44,7 @@ class AuthorationsController extends BaseController
         if (!$user) {
             // 创建用户
             $userData = [
+                "user_id" => $snowflake->id(),
                 "name" => "boy_" . Str::random(5),
                 "phone" => $phone,
                 "password" => "$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi",

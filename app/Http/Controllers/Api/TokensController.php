@@ -8,6 +8,12 @@ use App\Http\Requests\Api\TokenRequest;
 
 class TokensController extends BaseController
 {
+    /**
+     * 刷新用户的token
+     *
+     * @param TokenRequest $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function update(TokenRequest $request)
     {
         $refreshToken = auth()->refresh($request->token);
