@@ -5,8 +5,6 @@ namespace App\Http\Controllers\Api;
 use App\dict\Codes;
 use App\Http\Requests\Api\AuthorizationRequest;
 use App\Http\Requests\Api\CaptchaRequest;
-use App\Http\Requests\Api\LoginRequest;
-use App\Models\User;
 use Carbon\Carbon;
 use Godruoyi\Snowflake\Snowflake;
 use Illuminate\Support\Facades\Cache;
@@ -49,7 +47,7 @@ class AuthorationsController extends BaseController
                 "phone" => $phone,
                 "password" => "$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi",
             ];
-            $user = User::create($userData);
+            $user = $this->userSerivce->saveUsers($userData);
         }
         $token = auth()->fromUser($user);
         return $this->responseData(Codes::CODE_SUCCESS,

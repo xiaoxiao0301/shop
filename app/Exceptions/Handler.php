@@ -6,6 +6,7 @@ use App\dict\Codes;
 use Exception;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class Handler extends ExceptionHandler
 {
@@ -59,6 +60,15 @@ class Handler extends ExceptionHandler
                 "data" => []
             ])->setStatusCode(Codes::STATUS_CODE_NOT_AUTHORIZATION);
         }
+
+        if ($exception instanceof ModelNotFoundException) {
+            return response()->json([
+                "code" => Codes::CODE_DATA_NOT_FOUND,
+                "message" => Codes::getMessageByCode(Codes::CODE_DATA_NOT_FOUND),
+                "data" => []
+            ])->setStatusCode(Codes::STATUS_CODE_NOT_FOUND);
+        }
+
         return parent::render($request, $exception);
     }
 }

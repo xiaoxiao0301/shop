@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Tymon\JWTAuth\Contracts\JWTSubject;
@@ -46,5 +47,28 @@ class User extends Authenticatable implements JWTSubject
     public function getJWTCustomClaims()
     {
         return [];
+    }
+
+
+    /**
+     * 模型关系， 用户关联用户收货地址， 一对多
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function addresses()
+    {
+        return $this->hasMany(UserAddress::class);
+    }
+
+
+    /**
+     * 权限校验
+     *
+     * @param Model $model
+     * @return bool
+     */
+    public function isAuthOf(Model $model)
+    {
+        return $this->user_id == $model->user_id;
     }
 }

@@ -3,8 +3,9 @@
 namespace App\Services\impl;
 
 use App\Models\User;
+use App\Services\UserServicesIf;
 
-class UserServciesImpl implements \App\Services\UserServicesInterface
+class UserServciesImpl implements UserServicesIf
 {
 
     /**
@@ -27,11 +28,11 @@ class UserServciesImpl implements \App\Services\UserServicesInterface
      * 注册用户
      *
      * @param User $user
-     * @return User
+     * @return User|\Illuminate\Database\Eloquent\Model
      */
-    public function saveUsers(User $user): User
+    public function saveUsers(array $userData)
     {
-        return User::insert($user);
+        return User::create($userData);
     }
 
 
@@ -44,5 +45,10 @@ class UserServciesImpl implements \App\Services\UserServicesInterface
     public function getUserInfoByUserPhone(string $phone)
     {
         return User::query()->where("phone", $phone)->first();
+    }
+
+    public function getCurrentUserInfo()
+    {
+        return auth()->user();
     }
 }
