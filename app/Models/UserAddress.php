@@ -2,9 +2,7 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
-
-class UserAddress extends Model
+class UserAddress extends BaseModel
 {
     protected $fillable = [
         'province',
@@ -29,7 +27,7 @@ class UserAddress extends Model
      */
     public function user()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'user_id', 'user_id');
     }
 
     /**

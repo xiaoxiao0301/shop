@@ -11,6 +11,6 @@ class UserAddressSeeder extends Seeder
      */
     public function run()
     {
-        factory(\App\Models\UserAddress::class, 3)->create();
+        factory(\App\Models\UserAddress::class, 10)->create();
     }
 }

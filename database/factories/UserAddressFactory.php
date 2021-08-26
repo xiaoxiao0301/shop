@@ -18,9 +18,9 @@ $factory->define(UserAddress::class, function (Faker $faker) {
         ["陕西省", "西安市", "雁塔区"],
     ];
     $address   = $faker->randomElement($addresses);
-    $user = \App\Models\User::find(2);
+    $userIds = \App\Models\User::all()->pluck('user_id');
     return [
-        'user_id' => $user->user_id,
+        'user_id' => $faker->randomElement($userIds),
         'province' => $address[0],
         'city' => $address[1],
         'district' => $address[2],
