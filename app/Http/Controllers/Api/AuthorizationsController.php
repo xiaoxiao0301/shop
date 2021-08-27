@@ -13,32 +13,24 @@ use Illuminate\Support\Str;
 use Overtrue\EasySms\EasySms;
 use Overtrue\EasySms\Exceptions\NoGatewayAvailableException;
 
-class AuthorationsController extends BaseController
+class AuthorizationsController extends BaseController
 {
    public function store(AuthorizationRequest $request, Snowflake $snowflake)
     {
         $codeCacheInfo = Cache::get($request->code_key);
         if (!$codeCacheInfo) {
-            return $this->responseData(Codes::CODE_CAPTCHA_EXPIRE,
-                Codes::getMessageByCode(Codes::CODE_CAPTCHA_EXPIRE),
-                [],
-                Codes::STATUS_CODE_UNPROCESSABLE_ENTITY
-            );
+            return $this->responseData(Codes::CODE_CAPTCHA_EXPIRE, [], Codes::STATUS_CODE_UNPROCESSABLE_ENTITY);
         }
         // 短信验证码验证
         $phone = $codeCacheInfo["phone"];
         if (!($codeCacheInfo['code'] ==  $request->code)) {
-            return $this->responseData(Codes::CODE_CAPTCHA_INVALID,
-                Codes::getMessageByCode(Codes::CODE_CAPTCHA_INVALID),
-                [],
-                Codes::STATUS_CODE_UNPROCESSABLE_ENTITY
-            );
+            return $this->responseData(Codes::CODE_CAPTCHA_INVALID, [], Codes::STATUS_CODE_UNPROCESSABLE_ENTITY);
         }
         // 清楚短信验证码key
         Cache::forget($request->code_key);
 
         // 有用户直接登陆，没有就创建用户再登陆
-        $user = $this->userSerivce->getUserInfoByUserPhone($phone);
+        $user = $this->userService->getUserInfoByUserPhone($phone);
         if (!$user) {
             // 创建用户
             $userData = [
@@ -47,14 +39,10 @@ class AuthorationsController extends BaseController
                 "phone" => $phone,
                 "password" => "$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi",
             ];
-            $user = $this->userSerivce->saveUsers($userData);
+            $user = $this->userService->saveUsers($userData);
         }
         $token = auth()->fromUser($user);
-        return $this->responseData(Codes::CODE_SUCCESS,
-            Codes::getMessageByCode(Codes::CODE_SUCCESS),
-            $this->generateRespondDataWithToken($token),
-            Codes::STATUS_CODE_OK
-        );
+        return $this->responseData(Codes::CODE_SUCCESS, $this->generateRespondDataWithToken($token), Codes::STATUS_CODE_OK);
 
     }
 
@@ -88,11 +76,7 @@ class AuthorationsController extends BaseController
                     "phone" => $phone,
                     "message" => $message
                 ]);
-                return $this->responseData(Codes::CODE_NETWORK_BUSY,
-                    Codes::getMessageByCode(Codes::CODE_NETWORK_BUSY),
-                    [],
-                    Codes::STATUS_CODE_ERROR_INTERNAL
-                );
+                return $this->responseData(Codes::CODE_NETWORK_BUSY, [], Codes::STATUS_CODE_ERROR_INTERNAL);
             }
         }
 
@@ -105,11 +89,7 @@ class AuthorationsController extends BaseController
             "codeKeyExpire" => $codeKeyExpiredAt->toDateTimeString()
         ];
 
-        return $this->responseData(Codes::CODE_SUCCESS,
-            Codes::getMessageByCode(Codes::CODE_SUCCESS),
-            $result,
-            Codes::STATUS_CODE_OK
-        );
+        return $this->responseData(Codes::CODE_SUCCESS, $result, Codes::STATUS_CODE_OK);
 
     }
 

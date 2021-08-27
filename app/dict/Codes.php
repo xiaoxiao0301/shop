@@ -15,6 +15,9 @@ class Codes
     public const CODE_TOKEN_EXPIRE = 1005; // 未传递token或token过期
     public const CODE_ACTION_NOT_ALLOWED = 1006; // 非法操作，修改不是自己的资源
     public const CODE_DATA_NOT_FOUND = 1007; // 查找的资源没有
+    public const CODE_PRODUCT_INVALID = 1008; // 商品未上架
+    public const CODE_PRODUCT_ADD_FAVORITE = 1009; // 商品未上架
+    public const CODE_PRODUCT_NOT_FAVORITE = 1010; // 商品未收藏
 
     public static $message = [
         self::CODE_SUCCESS => "成功",
@@ -26,6 +29,9 @@ class Codes
         self::CODE_TOKEN_EXPIRE => "请重新登陆",
         self::CODE_ACTION_NOT_ALLOWED => "无权限执行",
         self::CODE_DATA_NOT_FOUND => "数据不存在",
+        self::CODE_PRODUCT_INVALID => "商品未上架",
+        self::CODE_PRODUCT_ADD_FAVORITE => "商品已收藏",
+        self::CODE_PRODUCT_NOT_FAVORITE => "商品未收藏",
     ];
 
 

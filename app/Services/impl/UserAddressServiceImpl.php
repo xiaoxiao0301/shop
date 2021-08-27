@@ -4,6 +4,7 @@ namespace App\Services\impl;
 
 use App\Models\UserAddress;
 use App\Services\UserAddressServicesIf;
+use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
 
@@ -53,15 +54,18 @@ class UserAddressServiceImpl implements UserAddressServicesIf
     }
 
     /**
-     * 保存用户收货地址
+     * 通过关联关系保存地址信息， associate只有belongsTo这个关联这边有
      *
-     * @param $addressData
-     * @return UserAddress
+     * @param Authenticatable $user
+     * @param UserAddress $address
+     * @return bool
      */
-    public function saveUserAddress($addressData): UserAddress
+    public function saveUserAddress(Authenticatable $user, UserAddress $address): bool
     {
-        return UserAddress::create($addressData);
+        $address->user()->associate($user);
+        return $address->save();
     }
+
 
     /**
      * 更新用户收货地址
@@ -74,7 +78,6 @@ class UserAddressServiceImpl implements UserAddressServicesIf
     {
         return $userAddress->update($data);
     }
-
 
     /**
      * 删除用户的收货地址

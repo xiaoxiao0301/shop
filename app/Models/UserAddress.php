@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+
 class UserAddress extends BaseModel
 {
     protected $fillable = [
@@ -23,9 +25,9 @@ class UserAddress extends BaseModel
     /**
      * 模型关联， 一个用户可以有多个收货地址，一个收货地址只能对应一个用户 一对多
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return BelongsTo
      */
-    public function user()
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id', 'user_id');
     }
@@ -35,7 +37,7 @@ class UserAddress extends BaseModel
      *
      * @return string
      */
-    public function getFullAddressAttribute()
+    public function getFullAddressAttribute(): string
     {
         return "{$this->province}{$this->city}{$this->district}{$this->address}";
     }

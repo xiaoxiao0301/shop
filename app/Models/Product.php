@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Str;
 
 class Product extends BaseModel
 {
@@ -24,5 +25,15 @@ class Product extends BaseModel
     public function skus(): HasMany
     {
         return $this->hasMany(ProductSku::class);
+    }
+
+
+    public function getImageAttribute()
+    {
+        // 如果 image 字段本身就已经是完整的 url 就直接返回
+        if (Str::startsWith($this->attributes['image'], ['http://', 'https://'])) {
+            return $this->attributes['image'];
+        }
+        return env('APP_URL') . '/storage/admin/' . $this->attributes['image'];
     }
 }

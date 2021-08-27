@@ -10,6 +10,8 @@ use Dcat\Admin\Http\Controllers\AdminController;
 
 class ProductSkuController extends AdminController
 {
+    protected $title = "商品Sku列表";
+
     /**
      * Make a grid builder.
      *
@@ -24,13 +26,23 @@ class ProductSkuController extends AdminController
             $grid->column('price');
             $grid->column('stock');
             $grid->column('product_id');
-            $grid->column('created_at');
-            $grid->column('updated_at')->sortable();
-        
+            $grid->column('created_at')->sortable();
+//            $grid->column('updated_at')->sortable();
+
             $grid->filter(function (Grid\Filter $filter) {
                 $filter->equal('id');
-        
+
             });
+
+
+            $grid->disableFilterButton();
+            $grid->disableRowSelector();
+
+            $grid->setActionClass(Grid\Displayers\Actions::class);
+            $grid->disableDeleteButton();
+            $grid->disableEditButton();
+            $grid->disableCreateButton();
+
         });
     }
 
@@ -52,6 +64,11 @@ class ProductSkuController extends AdminController
             $show->field('product_id');
             $show->field('created_at');
             $show->field('updated_at');
+
+
+            $show->disableEditButton();
+            $show->disableDeleteButton();
+
         });
     }
 
@@ -69,7 +86,7 @@ class ProductSkuController extends AdminController
             $form->text('price');
             $form->text('stock');
             $form->text('product_id');
-        
+
             $form->display('created_at');
             $form->display('updated_at');
         });

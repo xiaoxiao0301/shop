@@ -2,8 +2,9 @@
 
 namespace App\Models;
 
-use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -40,12 +41,18 @@ class User extends Authenticatable implements JWTSubject
         'email_verified_at' => 'datetime',
     ];
 
+    /**
+     * @return mixed
+     */
     public function getJWTIdentifier()
     {
         return $this->getKey();
     }
 
-    public function getJWTCustomClaims()
+    /**
+     * @return array
+     */
+    public function getJWTCustomClaims(): array
     {
         return [];
     }
@@ -54,9 +61,9 @@ class User extends Authenticatable implements JWTSubject
     /**
      * 模型关系， 用户关联用户收货地址， 一对多
      *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return HasMany
      */
-    public function addresses()
+    public function addresses(): HasMany
     {
         return $this->hasMany(UserAddress::class, 'user_id', 'user_id');
     }
@@ -68,8 +75,22 @@ class User extends Authenticatable implements JWTSubject
      * @param Model $model
      * @return bool
      */
-    public function isAuthOf(Model $model)
+    public function isAuthOf(Model $model): bool
     {
         return $this->user_id == $model->user_id;
+    }
+
+
+    /**
+     * 模型关系，用户收藏商品，多对多
+     *
+     * @return BelongsToMany
+     */
+    public function favoriteProducts(): BelongsToMany
+    {
+        // 多对多, 第三个参数是当前模型的外键
+        return $this->belongsToMany(Product::class, 'user_favorite_products', 'user_id', 'product_id')
+            ->withTimestamps()
+            ->orderBy('user_favorite_products.created_at', 'desc');
     }
 }
