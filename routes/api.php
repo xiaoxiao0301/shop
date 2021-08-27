@@ -37,28 +37,41 @@ Route::prefix($version)->group(function () {
     // 需要登陆后才能访问的路由
     Route::middleware('auth')->group(function () {
 
+        // |----------------------- 收货地址
         // 收货列表
         Route::get('addresses', 'Api\UserAddressesController@list')
-            ->name('api.user.address.list');
+            ->name('api.address.list');
         // 创建收货地址
         Route::post('address', 'Api\UserAddressesController@store')
-            ->name('api.user.address.create');
+            ->name('api.address.create');
         // 编辑
         Route::put('address/{address}', 'Api\UserAddressesController@update')
-            ->name('api.user.address.update');
+            ->name('api.address.update');
         // 删除
         Route::delete('address/{address}', 'Api\UserAddressesController@destroy')
-            ->name('api.user.address.delete');
+            ->name('api.address.delete');
 
+        // |----------------------- 收藏商品
         // 收藏商品
         Route::post('products/{product}/favorite', 'Api\ProductsController@favor')
-            ->name('api.user.favorite.product');
+            ->name('api.favorite.product');
         // 取消收藏商品
         Route::delete('products/{product}/favorite', 'Api\ProductsController@disfavor')
-            ->name('api.user.disFavorite.product');
+            ->name('api.disFavorite.product');
         // 收藏商品列表
         Route::get('products/favorite', 'Api\ProductsController@favoriteList')
-            ->name('api.ser.favorite.product.list');
+            ->name('api.favorite.product.list');
+
+        // |----------------------- 购物车
+        // 添加商品
+        Route::post('cart', 'Api\CartController@store')
+            ->name('api.carts.add');
+        // 列表
+        Route::get('carts', 'Api\CartController@list')
+            ->name('api.carts.list');
+        // 移除商品
+        Route::delete('carts/{sku}', 'Api\CartController@destroy')
+            ->name('api.carts.delete');
 
     });
 

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\dict\Codes;
 use App\Http\Controllers\Controller;
+use App\Services\impl\CartItemServiceImpl;
 use App\Services\impl\PageServiceImpl;
 use App\Services\impl\ProductServicesImpl;
 use App\Services\impl\UserAddressServiceImpl;
@@ -41,12 +42,22 @@ class BaseController extends Controller
      */
     public PageServiceImpl $pageService;
 
+
+    /**
+     * 购物车服务
+     *
+     * @var CartItemServiceImpl
+     */
+    public CartItemServiceImpl $cartItemService;
+
+
     public function __construct()
     {
         $this->userService = new UserServiceImpl();
         $this->userAddressService = new UserAddressServiceImpl();
         $this->productService = new ProductServicesImpl();
         $this->pageService = new PageServiceImpl();
+        $this->cartItemService = new CartItemServiceImpl();
     }
 
     /**

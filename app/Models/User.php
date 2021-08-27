@@ -93,4 +93,15 @@ class User extends Authenticatable implements JWTSubject
             ->withTimestamps()
             ->orderBy('user_favorite_products.created_at', 'desc');
     }
+
+
+    /**
+     * 模型关系，用户添加购物车，一对多
+     *
+     * @return HasMany
+     */
+    public function carItems(): HasMany
+    {
+        return $this->hasMany(CartItem::class, 'user_id', 'user_id');
+    }
 }
