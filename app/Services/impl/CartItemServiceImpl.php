@@ -53,12 +53,15 @@ class CartItemServiceImpl implements CartItemServicesIf
      * 从购物车中移除商品
      *
      * @param $user
-     * @param $sku
+     * @param $skuId
      * @return mixed
      */
-    public function removeProductFromCart($user, $sku)
+    public function removeProductFromCart($user, $skuIds)
     {
+        if (!is_array($skuIds)) {
+            $skuIds = [$skuIds];
+        }
         /** @var User $user */
-        return $user->carItems()->where('product_sku_id', $sku->id)->delete();
+        return $user->carItems()->where('product_sku_id', $skuIds)->delete();
     }
 }

@@ -5,9 +5,9 @@ namespace App\Http\Controllers\Api;
 use App\dict\Codes;
 use App\Http\Controllers\Controller;
 use App\Services\impl\CartItemServiceImpl;
+use App\Services\impl\OrderServiceImpl;
 use App\Services\impl\PageServiceImpl;
 use App\Services\impl\ProductServicesImpl;
-use App\Services\impl\UserAddressServiceImpl;
 use App\Services\impl\UserServiceImpl;
 use Illuminate\Http\JsonResponse;
 
@@ -21,12 +21,6 @@ class BaseController extends Controller
      */
     public UserServiceImpl $userService;
 
-    /**
-     * 用户地址服务
-     *
-     * @var UserAddressServiceImpl
-     */
-    public UserAddressServiceImpl $userAddressService;
 
     /**
      * 商品服务
@@ -50,14 +44,21 @@ class BaseController extends Controller
      */
     public CartItemServiceImpl $cartItemService;
 
+    /**
+     * 订单服务
+     *
+     * @var OrderServiceImpl
+     */
+    public OrderServiceImpl $orderService;
+
 
     public function __construct()
     {
         $this->userService = new UserServiceImpl();
-        $this->userAddressService = new UserAddressServiceImpl();
         $this->productService = new ProductServicesImpl();
         $this->pageService = new PageServiceImpl();
         $this->cartItemService = new CartItemServiceImpl();
+        $this->orderService = new OrderServiceImpl();
     }
 
     /**

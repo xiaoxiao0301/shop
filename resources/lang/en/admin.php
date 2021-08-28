@@ -79,7 +79,7 @@ return [
     'batch_delete'          => 'Batch delete',
     'save'                  => 'Save',
     'refresh'               => 'Refresh',
-    'order'                 => 'Order',
+    'order'                 => 'OrderDict',
     'expand'                => 'Expand',
     'collapse'              => 'Collapse',
     'filter'                => 'Filter',

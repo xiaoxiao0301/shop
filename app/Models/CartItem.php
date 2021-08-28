@@ -2,13 +2,10 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\SoftDeletes;
 
-class CartItem extends Model
+class CartItem extends BaseModel
 {
-    use SoftDeletes;
 
     protected $fillable = ['user_id', 'product_sku_id', 'amount'];
 

@@ -2,7 +2,7 @@
 
 namespace App\Services;
 
-use App\Models\User;
+use App\Models\UserAddress;
 
 interface UserServicesIf
 {
@@ -13,4 +13,12 @@ interface UserServicesIf
     public function checkUserCollectProduct($product);
     public function getUserAddressesList();
     public function getUserCollectProductLists();
+
+    public function getUserAddressListsByUserId($userId);
+    public function getUserAddressListsByUserIdAndPageSize($userId, $size);
+    public function getUserAddressListsByUserIdAndPageAndSize($userId, $offset, $limit);
+    public function saveUserAddress(UserAddress $address);
+    public function updateUserAddress($userAddress, $data);
+    public function deleteUserAddress($userAddress);
+    public function getCurrentUsedAddressList();
 }

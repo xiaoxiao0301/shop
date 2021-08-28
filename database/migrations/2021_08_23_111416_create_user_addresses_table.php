@@ -24,7 +24,7 @@ class CreateUserAddressesTable extends Migration
             $table->unsignedInteger("zip")->comment("邮编");
             $table->string("contact_name")->comment("联系人姓名");
             $table->string("contact_phone")->comment("联系人电话");
-            $table->dateTime("last_used_at")->nullable()->default(null)->comment("最后一次使用时间");
+            $table->timestamp("last_used_at")->nullable()->default(null)->comment("最后一次使用时间");
             $table->timestamps();
             $table->softDeletes();
         });

@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Api;
 use App\dict\Codes;
 use App\Http\Requests\Api\UserAddressRequest;
 use App\Http\Resources\UserAddress as UserAddressResource;
-use App\Models\User;
 use App\Models\UserAddress;
 
 use Illuminate\Auth\Access\AuthorizationException;
@@ -50,9 +49,8 @@ class UserAddressesController extends BaseController
             'province', 'city', 'district', 'address',
             'zip', 'contact_name', 'contact_phone',
         ]);
-        $user = $this->userService->getCurrentUserInfo();
         $userAddress = new UserAddress($addressInfo);
-        $this->userAddressService->saveUserAddress($user, $userAddress);
+        $this->userService->saveUserAddress($userAddress);
         return $this->responseData(Codes::CODE_SUCCESS, [], Codes::STATUS_CODE_CREATED);
     }
 
@@ -69,7 +67,7 @@ class UserAddressesController extends BaseController
         try {
             $this->authorize('update', $address);
             $data = $request->all();
-            $result = $this->userAddressService->updateUserAddress($address, $data);
+            $result = $this->userService->updateUserAddress($address, $data);
             if ($result) {
                 return $this->responseData(Codes::CODE_SUCCESS, [], Codes::STATUS_CODE_CREATED);
             } else {
@@ -96,7 +94,7 @@ class UserAddressesController extends BaseController
     {
        try {
             $this->authorize("destroy", $address);
-            $result = $this->userAddressService->deleteUserAddress($address);
+            $result = $this->userService->deleteUserAddress($address);
             if ($result) {
                 return $this->responseData(Codes::CODE_SUCCESS, [], Codes::STATUS_CODE_OK);
             } else {
@@ -127,7 +125,7 @@ class UserAddressesController extends BaseController
         }
         $offset = ($page - 1) * $size;
         $limit = $offset + $size;
-        $addresses = $this->userAddressService->getUserAddressListsByUserIdAndPageAndSize($userId, $offset, $limit);
+        $addresses = $this->userService->getUserAddressListsByUserIdAndPageAndSize($userId, $offset, $limit);
         return UserAddressResource::collection($addresses)->additional([
             'code' => Codes::CODE_SUCCESS,
             'message' => Codes::getMessageByCode(Codes::CODE_SUCCESS)
@@ -142,7 +140,7 @@ class UserAddressesController extends BaseController
      */
     protected function getAddressesList($userId): AnonymousResourceCollection
     {
-        $addresses = $this->userAddressService->getUserAddressListsByUserIdAndPageSize($userId, 20);
+        $addresses = $this->userService->getUserAddressListsByUserIdAndPageSize($userId, 20);
         return UserAddressResource::collection($addresses)->additional([
             'code' => Codes::CODE_SUCCESS,
             'message' => Codes::getMessageByCode(Codes::CODE_SUCCESS)

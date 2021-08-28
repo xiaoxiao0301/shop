@@ -36,23 +36,14 @@ class CartController extends BaseController
     /**
      * 购物车列表
      *
-     * @param PageRequest $request
      * @return JsonResponse
      */
-    public function list(PageRequest $request): JsonResponse
+    public function list(): JsonResponse
     {
-        $page = $request->get('page');
-        $size = $request->get('size');
         $user = $this->userService->getCurrentUserInfo();
         $carts = $this->cartItemService->getCartLists($user);
-        $result = $this->pageService->customPage($page, $size, $carts);
-        if (!$result["data"]) {
-            $httpCode = Codes::STATUS_CODE_NOT_FOUND;
-        } else {
-            $httpCode = Codes::STATUS_CODE_OK;
-        }
-
-        return $this->responseData(Codes::CODE_SUCCESS, $result, $httpCode);
+        $address = $this->userService->getCurrentUsedAddressList();
+        return $this->responseData(Codes::CODE_SUCCESS, compact('carts', 'address'), Codes::STATUS_CODE_OK);
     }
 
     /**
@@ -63,9 +54,8 @@ class CartController extends BaseController
      */
     public function destroy(ProductSku $sku): JsonResponse
     {
-        // 这里不做权限校验是因为同一件商品可以被多人添加到各自的购物车中
         $user = $this->userService->getCurrentUserInfo();
-        $this->cartItemService->removeProductFromCart($user, $sku);
+        $this->cartItemService->removeProductFromCart($user, $sku->id);
         return $this->responseData(Codes::CODE_SUCCESS, [], Codes::STATUS_CODE_OK);
     }
 }

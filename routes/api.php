@@ -15,6 +15,10 @@ $version = 'v1';
 
 Route::prefix($version)->group(function () {
 
+    Route::get('test', function () {
+       throw new \App\Exceptions\InvalidRequestException("你好", 500);
+    });
+
     // 获取验证码
     Route::post('captcha', 'Api\CaptchasController@info')
         ->name('api.captcha.info');
@@ -72,6 +76,16 @@ Route::prefix($version)->group(function () {
         // 移除商品
         Route::delete('carts/{sku}', 'Api\CartController@destroy')
             ->name('api.carts.delete');
+
+        // |----------------------- 订单
+        // 创建订单
+        Route::post('orders', 'Api\OrdersController@store')
+            ->name('api.orders.create');
+        // 订单列表
+        Route::get('orders', 'Api\OrdersController@list')
+            ->name('api.orders.list');
+        Route::get('orders/{order}', 'Api\OrdersController@show')
+            ->name('api.orders.show');
 
     });
 
