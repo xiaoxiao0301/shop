@@ -86,6 +86,13 @@ Route::prefix($version)->group(function () {
             ->name('api.orders.list');
         Route::get('orders/{order}', 'Api\OrdersController@show')
             ->name('api.orders.show');
+        // 订单支付
+        Route::post('orders/{order}/payment', 'Api\PaymentController@payOrder')
+            ->name('api.order.payment');
+        Route::post('order_return', 'Api\PaymentController@alipayReturn')
+            ->name('api.order.payment.return');
+        Route::post('order_notify', 'Api\PaymentController@alipayNotify')
+            ->name('api.order.payment.notify');
 
     });
 
@@ -96,6 +103,10 @@ Route::prefix($version)->group(function () {
     // 商品详情
     Route::get('products/{product}', 'Api\ProductsController@show')
         ->name('api.product.show');
+
+
+
+
 
 });
 

@@ -176,6 +176,7 @@ return [
         App\Providers\RouteServiceProvider::class,
         App\Providers\SmsServiceProvider::class,
         App\Providers\SnowFlakeServiceProvider::class, // 雪花ID
+        App\Providers\PayServiceProvider::class, // 支付服务
     ],
 
     /*

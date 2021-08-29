@@ -53,7 +53,7 @@ class CartItemServiceImpl implements CartItemServicesIf
      * 从购物车中移除商品
      *
      * @param $user
-     * @param $skuId
+     * @param $skuIds
      * @return mixed
      */
     public function removeProductFromCart($user, $skuIds)

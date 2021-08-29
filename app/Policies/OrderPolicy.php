@@ -27,7 +27,7 @@ class OrderPolicy
      * @param Order $order
      * @return bool
      */
-    public function show(User $user, Order $order)
+    public function own(User $user, Order $order)
     {
         return $user->isAuthOf($order);
     }

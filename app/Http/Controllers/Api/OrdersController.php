@@ -67,6 +67,7 @@ class OrdersController extends BaseController
     public function show(Order $order): JsonResponse
     {
         try {
+            $this->authorize('own', $order);
             $order = $order->load(['items.product', 'items.productSku']);
             return $this->responseData(Codes::CODE_SUCCESS, $order->toArray(), Codes::STATUS_CODE_OK);
         } catch (AuthorizationException $exception) {
