@@ -15,3 +15,4 @@ _ide_helper.php
 .DS_Store
 /public/vendor
 dcat_admin_ide_helper.php
+config/pay.php
