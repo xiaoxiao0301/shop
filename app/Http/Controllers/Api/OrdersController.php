@@ -5,8 +5,10 @@ namespace App\Http\Controllers\Api;
 
 use App\dict\Codes;
 use App\dict\OrderDict;
+use App\Exceptions\InvalidRequestException;
 use App\Http\Requests\Api\OrderRequest;
 use App\Http\Requests\Api\PageRequest;
+use App\Http\Requests\Api\SendReviewRequest;
 use App\Jobs\CloseOrderJob;
 use App\Models\Order;
 use Illuminate\Auth\Access\AuthorizationException;
@@ -75,5 +77,58 @@ class OrdersController extends BaseController
         }
     }
 
+
+    /**
+     * 确认收货
+     *
+     * @param Order $order
+     * @return JsonResponse
+     */
+    public function received(Order $order): JsonResponse
+    {
+        try {
+            $this->authorize('own', $order);
+            $this->orderService->updateOrderShipStatus($order);
+            return $this->responseData(Codes::CODE_SUCCESS, [], Codes::STATUS_CODE_OK);
+        } catch (AuthorizationException $exception) {
+            return $this->responseData(Codes::CODE_ACTION_NOT_ALLOWED, [], Codes::STATUS_CODE_FORBIDDEN);
+        }
+    }
+
+    /**
+     * 订单评价
+     *
+     * @param Order $order
+     * @param SendReviewRequest $request
+     * @return JsonResponse
+     */
+    public function sendReview(Order $order, SendReviewRequest $request): JsonResponse
+    {
+        try {
+            $this->authorize('own', $order);
+            $this->orderService->saveOrderReview($order, $request->input('reviews'));
+            return $this->responseData(Codes::CODE_SUCCESS, [], Codes::STATUS_CODE_OK);
+        } catch (AuthorizationException $exception) {
+            return $this->responseData(Codes::CODE_ACTION_NOT_ALLOWED, [], Codes::STATUS_CODE_FORBIDDEN);
+        }
+    }
+
+    /**
+     * 订单评价页面
+     *
+     * @param Order $order
+     * @return JsonResponse
+     * @throws InvalidRequestException
+     */
+    public function reviews(Order $order)
+    {
+        try {
+            $this->authorize('own', $order);
+            $result = $this->orderService->getOrderReviewInfo($order)->toArray();
+            return $this->responseData(Codes::CODE_SUCCESS, $result, Codes::STATUS_CODE_OK);
+        } catch (AuthorizationException $exception) {
+            return $this->responseData(Codes::CODE_ACTION_NOT_ALLOWED, [], Codes::STATUS_CODE_FORBIDDEN);
+        }
+    }
 
 }

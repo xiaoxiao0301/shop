@@ -2,6 +2,8 @@
 
 namespace App\Services\impl;
 
+use App\dict\OrderDict;
+use App\Events\OrderReviewed;
 use App\Exceptions\InvalidRequestException;
 use App\Models\Order;
 use App\Models\OrderItem;
@@ -150,5 +152,70 @@ class OrderServiceImpl implements OrderServicesIf
         $qrCode = new QrCode($wechatOrder->code_url);
         // 将生成的二维码图片数据以字符串形式输出，并带上相应的响应类型
         return response($qrCode->writeString(), 200, ['Content-Type' => $qrCode->getContentType()]);
+    }
+
+    /**
+     * 确认收货
+     *
+     * @param $order
+     */
+    public function updateOrderShipStatus($order)
+    {
+        if ($order->ship_status !== OrderDict::SHIP_STATUS_DELIVERED) {
+            throw new InvalidRequestException('发货状态不正确');
+        }
+        $order->update([
+            'ship_status' => OrderDict::SHIP_STATUS_RECEIVED
+        ]);
+    }
+
+    /**
+     * 订单评价详情
+     * @param $order
+     * @return mixed
+     * @throws InvalidRequestException
+     */
+    public function getOrderReviewInfo($order)
+    {
+        // 判断是否已经支付
+        if (!$order->paid_at) {
+            throw new InvalidRequestException('该订单未支付，不可评价');
+        }
+        // 使用 load 方法加载关联数据，避免 N + 1 性能问题
+        return $order->load(['items.productSku', 'items.product']);
+    }
+
+    /**
+     * 评价订单
+     *
+     * @param $order
+     * @param $data
+     * @throws InvalidRequestException
+     * @throws Throwable
+     */
+    public function saveOrderReview($order, $data)
+    {
+        if (!$order->paid_at) {
+            throw new InvalidRequestException('该订单未支付，不可评价');
+        }
+        // 判断是否已经评价
+        if ($order->reviewed) {
+            throw new InvalidRequestException('该订单已评价，不可重复提交');
+        }
+        DB::transaction(function () use ($data, $order) {
+           foreach ($data as $item) {
+               $orderItem = $order->items()->where('order_id', $item['id'])->first();
+               // 保存评价和评分
+               $orderItem->update([
+                   'rating' => $item['rating'],
+                   'review' => $item['review'],
+                   'reviewed_at' => Carbon::now()
+               ]);
+
+               $order->update(['reviewed' => true]);
+           }
+           // 事件系统给商品更新评分和累计评论数量
+           event(new OrderReviewed($order));
+        });
     }
 }

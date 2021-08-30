@@ -9,7 +9,7 @@ use App\Notifications\SendOrderPaidNotification;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 
-class UpdateProductSoldCount
+class UpdateProductSoldCount implements ShouldQueue
 {
     /**
      * Create the event listener.
