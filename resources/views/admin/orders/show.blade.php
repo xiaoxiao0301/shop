@@ -82,7 +82,55 @@
                     <td>{{ $order->ship_data['express_no'] }}</td>
                 </tr>
             @endif
+            @if($order->refund_status !== \App\dict\OrderDict::REFUND_STATUS_PENDING)
+                <tr>
+                    <td>退款状态：</td>
+                    <td colspan="2">{{ \App\dict\OrderDict::$refundStatusMap[$order->refund_status] }}，理由：{{ $order->extra['refund_reason'] }}</td>
+                    <td>
+                        <!-- 如果订单退款状态是已申请，则展示处理按钮 -->
+                        @if($order->refund_status === \App\dict\OrderDict::REFUND_STATUS_APPLIED)
+                            <button class="btn btn-sm btn-success" id="btn-refund-agree">同意</button>
+                            <button class="btn btn-sm btn-danger" id="btn-refund-disagree">不同意</button>
+                        @endif
+                    </td>
+                </tr>
+            @endif
             </tbody>
         </table>
     </div>
 </div>
+
+<script>
+    Dcat.ready(function () {
+        $("#btn-refund-disagree").click(function () {
+            swal.fire({
+                title: '请输入拒绝退款理由',
+                input: 'text',
+                showCancelButton: true,
+                inputValidator: (value) => {
+                    if (!value) {
+                        return '理由不能为空'
+                    }
+                    $.ajax({
+                        url: '{{ route('dcat.admin.order.refund', $order->id) }}',
+                        type: 'post',
+                        data: JSON.stringify({
+                            agree: false,
+                            reason: value,
+                        }),
+                        contentType: 'application/json',  // 请求的数据格式为 JSON
+                        success: function (data) {  // 返回成功时会调用这个函数
+                            swal.fire({
+                                title: '操作成功',
+                                type: 'success',
+                            }).then(() => {
+                                window.location.reload()
+                            })
+                        },
+                    });
+                }
+            })
+        });
+    })
+
+</script>

@@ -121,7 +121,7 @@ class OrderServiceImpl implements OrderServicesIf
         }
         // 调用支付宝的网页支付
         return app('alipay')->web([
-            'out_trade_no' => $order->no, // 订单编号，需保证在商户端不重复
+            'out_trade_no' => $order->order_no, // 订单编号，需保证在商户端不重复
             'total_amount' => $order->total_amount, // 订单金额，单位元，支持小数点后两位
             'subject'      => '支付 Laravel Shop 的订单：'.$order->no, // 订单标题
         ]);
@@ -158,6 +158,7 @@ class OrderServiceImpl implements OrderServicesIf
      * 确认收货
      *
      * @param $order
+     * @throws InvalidRequestException
      */
     public function updateOrderShipStatus($order)
     {
@@ -217,5 +218,32 @@ class OrderServiceImpl implements OrderServicesIf
            // 事件系统给商品更新评分和累计评论数量
            event(new OrderReviewed($order));
         });
+    }
+
+    /**
+     * 处理退款
+     *
+     * @param $order
+     * @param $reason
+     * @throws InvalidRequestException
+     */
+    public function handlerOrderRefund($order, $reason)
+    {
+        if (!$order->paid_at) {
+            throw new InvalidRequestException('该订单未支付，不可退款');
+        }
+        // 判断订单退款状态是否正确
+        if ($order->refund_status !== OrderDict::REFUND_STATUS_PENDING) {
+            throw new InvalidRequestException('该订单已经申请过退款，请勿重复申请');
+        }
+
+        // 将用户输入的退款理由放到订单的 extra 字段中
+        $extra                  = $order->extra ?: [];
+        $extra['refund_reason'] = $reason;
+        // 将订单退款状态改为已申请退款
+        $order->update([
+            'refund_status' => OrderDict::REFUND_STATUS_APPLIED,
+            'extra'         => $extra,
+        ]);
     }
 }

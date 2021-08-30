@@ -6,6 +6,7 @@ namespace App\Http\Controllers\Api;
 use App\dict\Codes;
 use App\dict\OrderDict;
 use App\Exceptions\InvalidRequestException;
+use App\Http\Requests\Api\ApplyRefundRequest;
 use App\Http\Requests\Api\OrderRequest;
 use App\Http\Requests\Api\PageRequest;
 use App\Http\Requests\Api\SendReviewRequest;
@@ -83,6 +84,7 @@ class OrdersController extends BaseController
      *
      * @param Order $order
      * @return JsonResponse
+     * @throws InvalidRequestException
      */
     public function received(Order $order): JsonResponse
     {
@@ -101,6 +103,8 @@ class OrdersController extends BaseController
      * @param Order $order
      * @param SendReviewRequest $request
      * @return JsonResponse
+     * @throws InvalidRequestException
+     * @throws Throwable
      */
     public function sendReview(Order $order, SendReviewRequest $request): JsonResponse
     {
@@ -120,7 +124,7 @@ class OrdersController extends BaseController
      * @return JsonResponse
      * @throws InvalidRequestException
      */
-    public function reviews(Order $order)
+    public function reviews(Order $order): JsonResponse
     {
         try {
             $this->authorize('own', $order);
@@ -130,5 +134,27 @@ class OrdersController extends BaseController
             return $this->responseData(Codes::CODE_ACTION_NOT_ALLOWED, [], Codes::STATUS_CODE_FORBIDDEN);
         }
     }
+
+
+    /**
+     * 申请退款
+     *
+     * @param Order $order
+     * @param ApplyRefundRequest $request
+     * @return JsonResponse
+     * @throws InvalidRequestException
+     */
+    public function refund(Order $order, ApplyRefundRequest $request): JsonResponse
+    {
+        // 订单已支付，且退款状态是未退款时,申请退款按钮
+        try {
+            $this->authorize('own', $order);
+            $this->orderService->handlerOrderRefund($order, $request->input('reason'));
+            return $this->responseData(Codes::CODE_SUCCESS, [], Codes::STATUS_CODE_OK);
+        } catch (AuthorizationException $exception) {
+            return $this->responseData(Codes::CODE_ACTION_NOT_ALLOWED, [], Codes::STATUS_CODE_FORBIDDEN);
+        }
+    }
+
 
 }

@@ -20,7 +20,7 @@ Route::group([
     $router->resource('skus', 'ProductSkuController');
 
     $router->resource('orders', 'OrderController');
-    $router->post('orders/{order}/ship', 'OrderController@ship')
-        ->name('order.ship');
+    $router->post('orders/{order}/ship', 'OrderController@ship')->name('order.ship');
+    $router->post('orders/{order}/refund', 'OrderController@handleRefund')->name('order.refund');
 
 });

@@ -102,6 +102,8 @@ Route::prefix($version)->group(function () {
             ->name('api.order.payment.notify');
         Route::post('order_wechat_notify', 'Api\PaymentController@wechatNotify')
             ->name('api.order.payment.wechat.notify');
+        Route::post('payment/wechat/refund_notify', 'Api\PaymentController@wechatRefundNotify')
+            ->name('api.payment.wechat.refund.notify');
         // 确认收货
         Route::post('orders/{order}/received', 'Api\OrdersController@received')
             ->name('api.order.received');
@@ -111,6 +113,9 @@ Route::prefix($version)->group(function () {
         // 评价
         Route::post('orders/{order}/review', 'Api\OrdersController@sendReview')
             ->name('api.order.review.create');
+        // 订单退款
+        Route::post('orders/{order}/refund', 'Api\OrdersController@refund')
+            ->name('api.order.refund');
 
     });
 

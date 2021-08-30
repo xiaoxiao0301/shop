@@ -21,5 +21,6 @@ class VerifyCsrfToken extends Middleware
     protected $except = [
         'api/v1/order_alipay_notify', // 支付宝回调
         'api/v1/order_wechat_notify', // 微信支付回调
+        'api/v1/payment/wechat/refund_notify', // 微信退款回调
     ];
 }

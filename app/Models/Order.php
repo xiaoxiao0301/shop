@@ -5,6 +5,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Ramsey\Uuid\Uuid;
 
 class Order extends BaseModel
 {
@@ -74,6 +75,21 @@ class Order extends BaseModel
     {
         $snowFlake = app('snowflake');
         return $snowFlake->id();
+    }
+
+
+    /**
+     * 生成退款订单的编号
+     *
+     * @return string
+     */
+    public static function generateOrderRefundStringNumber()
+    {
+        do {
+            $no = Uuid::uuid4()->getHex();
+        } while(self::query()->where('refund_no', $no)->exists());
+
+        return $no;
     }
 
 }

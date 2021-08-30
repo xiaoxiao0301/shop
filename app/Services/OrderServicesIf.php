@@ -11,4 +11,5 @@ interface OrderServicesIf
     public function updateOrderShipStatus($order);
     public function getOrderReviewInfo($order);
     public function saveOrderReview($order, $data);
+    public function handlerOrderRefund($order, $reason);
 }
