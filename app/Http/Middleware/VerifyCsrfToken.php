@@ -19,6 +19,7 @@ class VerifyCsrfToken extends Middleware
      * @var array
      */
     protected $except = [
-        'api/v1/order_notify'
+        'api/v1/order_alipay_notify', // 支付宝回调
+        'api/v1/order_wechat_notify', // 微信支付回调
     ];
 }

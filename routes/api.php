@@ -11,13 +11,12 @@
 |
 */
 
+use App\Models\Order;
+
 $version = 'v1';
 
 Route::prefix($version)->group(function () {
 
-    Route::get('test', function () {
-       throw new \App\Exceptions\InvalidRequestException("你好", 500);
-    });
 
     // 获取验证码
     Route::post('captcha', 'Api\CaptchasController@info')
@@ -40,6 +39,12 @@ Route::prefix($version)->group(function () {
 
     // 需要登陆后才能访问的路由
     Route::middleware('auth')->group(function () {
+        // |----------------------- 消息通知
+        // 获取所有未读消息列表
+        Route::get('users/notifications', 'Api\UsersController@notificationLists')
+            ->name('api.user.notifications');
+        Route::post('users/notifications/read', 'Api\UsersController@readAll')
+            ->name('api.user.read.notification');
 
         // |----------------------- 收货地址
         // 收货列表
@@ -84,15 +89,19 @@ Route::prefix($version)->group(function () {
         // 订单列表
         Route::get('orders', 'Api\OrdersController@list')
             ->name('api.orders.list');
+        // 订单详情
         Route::get('orders/{order}', 'Api\OrdersController@show')
             ->name('api.orders.show');
         // 订单支付
         Route::post('orders/{order}/payment', 'Api\PaymentController@payOrder')
             ->name('api.order.payment');
-        Route::post('order_return', 'Api\PaymentController@alipayReturn')
+        // 支付回调
+        Route::post('order_alipay_return', 'Api\PaymentController@alipayReturn')
             ->name('api.order.payment.return');
-        Route::post('order_notify', 'Api\PaymentController@alipayNotify')
+        Route::post('order_alipay_notify', 'Api\PaymentController@alipayNotify')
             ->name('api.order.payment.notify');
+        Route::post('order_wechat_notify', 'Api\PaymentController@wechatNotify')
+            ->name('api.order.payment.wechat.notify');
 
     });
 

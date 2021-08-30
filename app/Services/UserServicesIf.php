@@ -14,6 +14,9 @@ interface UserServicesIf
     public function getUserAddressesList();
     public function getUserCollectProductLists();
 
+    public function getUserUnreadNotificationLists();
+    public function makeUserNotificationReadAll();
+
     public function getUserAddressListsByUserId($userId);
     public function getUserAddressListsByUserIdAndPageSize($userId, $size);
     public function getUserAddressListsByUserIdAndPageAndSize($userId, $offset, $limit);

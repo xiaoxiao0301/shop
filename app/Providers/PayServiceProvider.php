@@ -33,6 +33,7 @@ class PayServiceProvider extends ServiceProvider
         // 微信支付
         $this->app->singleton('wechat_pay', function () {
             $config = config('pay.wechat');
+            $config['notify_url'] = route('api.order.payment.wechat.notify');
             if (app()->environment() !== 'production') {
                 $config['log']['level'] = Logger::DEBUG;
             } else {

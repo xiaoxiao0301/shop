@@ -104,4 +104,26 @@ class User extends Authenticatable implements JWTSubject
     {
         return $this->hasMany(CartItem::class, 'user_id', 'user_id');
     }
+
+    /**
+     * 订单支付成功后发送消息提示支付成功
+     *
+     * @param $instance
+     */
+    public function notifyOrderPaid($instance)
+    {
+        $this->increment('notification_count');
+        $this->notify($instance);
+    }
+
+    /**
+     * 将未读通知标记已读
+     */
+    public function makeNotificationRead()
+    {
+        $this->notification_count = 0;
+        $this->save();
+        $this->unreadNotifications->markAsRead();
+    }
+
 }

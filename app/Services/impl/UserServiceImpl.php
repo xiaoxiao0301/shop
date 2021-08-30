@@ -194,4 +194,26 @@ class UserServiceImpl implements UserServicesIf
         return $user->addresses()->orderBy('last_used_at', 'desc')->get()->toArray();
     }
 
+
+    /**
+     * 获取用户未读消息数列表
+     *
+     * @return \Illuminate\Support\Collection
+     */
+    public function getUserUnreadNotificationLists()
+    {
+        /** @var User $user */
+        $user = $this->getCurrentUserInfo();
+        return $user->unreadNotifications()->get();
+    }
+
+    /**
+     * 将所有未读消息设为已读
+     */
+    public function makeUserNotificationReadAll()
+    {
+        /** @var User $user */
+        $user = $this->getCurrentUserInfo();
+        $user->makeNotificationRead();
+    }
 }
