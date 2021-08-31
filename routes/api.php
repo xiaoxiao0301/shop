@@ -117,6 +117,11 @@ Route::prefix($version)->group(function () {
         Route::post('orders/{order}/refund', 'Api\OrdersController@refund')
             ->name('api.order.refund');
 
+        // |----------------------- 优惠券
+        // 优惠券码检查，下单时可用优惠支付
+        Route::post('coupon/check', 'Api\CouponController@checkCouponCode')
+            ->name('api.coupon.code.check');
+
     });
 
 

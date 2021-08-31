@@ -2,8 +2,10 @@
 
 namespace App\Services\impl;
 
+use App\dict\Codes;
 use App\dict\OrderDict;
 use App\Events\OrderReviewed;
+use App\Exceptions\CouponCodeUnavailableException;
 use App\Exceptions\InvalidRequestException;
 use App\Models\Order;
 use App\Models\OrderItem;
@@ -29,13 +31,19 @@ class OrderServiceImpl implements OrderServicesIf
      *
      * @param $user
      * @param $data
+     * @param $coupon
      * @return mixed
      * @throws Throwable
      */
-    public function createOrder($user, $data)
+    public function createOrder($user, $data, $coupon)
     {
+        // 如果传入了优惠券，则先检查是否可用
+        if ($coupon) {
+            // 但此时我们还没有计算出订单总金额，因此先不校验
+            $coupon->checkAvailable($user);
+        }
         // transaction 事务中有异常会rollback
-        $order = DB::transaction(function () use ($user, $data) {
+        $order = DB::transaction(function () use ($user, $data, $coupon) {
             // 更新当前地址的最后使用时间
             $address = UserAddress::find($data['address_id']);
             $address->update(['last_used_at' => Carbon::now()]);
@@ -72,6 +80,24 @@ class OrderServiceImpl implements OrderServicesIf
                 $totalAmount += $sku->price * $item['amount'];
                 if ($sku->decreaseStock($item['amount']) <= 0) {
                     throw new InvalidRequestException("该商品库存不足");
+                }
+            }
+
+            // 有优惠券的情况下重新计算总金额
+            if ($coupon) {
+                // 判断是否符合满足订单最小金额原则
+                $coupon->checkAvailable($user, $totalAmount);
+                // 修改订单总金额为优惠后的金额
+                $totalAmount = $coupon->calcUsedCouponPrice($totalAmount);
+                // 将订单与优惠券关联
+                $order->couponCode()->associate($coupon);
+                // 增加优惠券的使用量
+                if ($coupon->changeUsed() <= 0) {
+                    throw new CouponCodeUnavailableException(
+                        Codes::CODE_COUPON_CODE_HAS_EXCHANGED,
+                        '',
+                        Codes::STATUS_CODE_FORBIDDEN
+                    );
                 }
             }
 

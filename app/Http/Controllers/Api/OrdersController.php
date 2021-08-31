@@ -5,12 +5,14 @@ namespace App\Http\Controllers\Api;
 
 use App\dict\Codes;
 use App\dict\OrderDict;
+use App\Exceptions\CouponCodeUnavailableException;
 use App\Exceptions\InvalidRequestException;
 use App\Http\Requests\Api\ApplyRefundRequest;
 use App\Http\Requests\Api\OrderRequest;
 use App\Http\Requests\Api\PageRequest;
 use App\Http\Requests\Api\SendReviewRequest;
 use App\Jobs\CloseOrderJob;
+use App\Models\CouponCode;
 use App\Models\Order;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\JsonResponse;
@@ -32,7 +34,17 @@ class OrdersController extends BaseController
         // postman post方式传递数组 body form-data 不需要写单引号
         $user = $this->userService->getCurrentUserInfo();
         $data = $request->all();
-        $order = $this->orderService->createOrder($user, $data);
+        $coupon = null;
+        // 生成订单时传递了优惠券码
+        if ($code = $request->input('coupon_code')) {
+            $coupon = CouponCode::query()->where('code', $code)->first();
+            if (!$coupon) {
+                throw new CouponCodeUnavailableException(Codes::CODE_COUPON_CODE_NOT_FOUND, '', Codes::STATUS_CODE_NOT_FOUND);
+            }
+            /** @var CouponCode $coupon */
+            $coupon->checkAvailable();  // 再做一步优惠券的校验
+        }
+        $order = $this->orderService->createOrder($user, $data, $coupon);
         // 订单未支付关闭
         $this->dispatch(new CloseOrderJob($order, OrderDict::ORDER_SHOULD_CLOSE_TTL));
         return $this->responseData(Codes::CODE_SUCCESS, [], Codes::STATUS_CODE_OK);

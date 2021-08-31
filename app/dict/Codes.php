@@ -6,18 +6,25 @@ class Codes
 {
 
     // 业务码返回定义
-    public const CODE_SUCCESS = 0; // 请求成功
-    public const CODE_INVALID_PARAM = 1000; // 参数异常
-    public const CODE_USER_EXISTS  = 1001; // 用户已存在
-    public const CODE_CAPTCHA_EXPIRE = 1002; // 验证码已过期
-    public const CODE_CAPTCHA_INVALID = 1003; // 验证码错误
-    public const CODE_NETWORK_BUSY = 1004; // 网络异常，请稍后再试
-    public const CODE_TOKEN_EXPIRE = 1005; // 未传递token或token过期
-    public const CODE_ACTION_NOT_ALLOWED = 1006; // 非法操作，修改不是自己的资源
-    public const CODE_DATA_NOT_FOUND = 1007; // 查找的资源没有
-    public const CODE_PRODUCT_INVALID = 1008; // 商品未上架
-    public const CODE_PRODUCT_ADD_FAVORITE = 1009; // 商品未上架
-    public const CODE_PRODUCT_NOT_FAVORITE = 1010; // 商品未收藏
+    const CODE_SUCCESS = 0; // 请求成功
+    const CODE_INVALID_PARAM = 1000; // 参数异常
+    const CODE_USER_EXISTS  = 1001; // 用户已存在
+    const CODE_CAPTCHA_EXPIRE = 1002; // 验证码已过期
+    const CODE_CAPTCHA_INVALID = 1003; // 验证码错误
+    const CODE_NETWORK_BUSY = 1004; // 网络异常，请稍后再试
+    const CODE_TOKEN_EXPIRE = 1005; // 未传递token或token过期
+    const CODE_ACTION_NOT_ALLOWED = 1006; // 非法操作，修改不是自己的资源
+    const CODE_DATA_NOT_FOUND = 1007; // 查找的资源没有
+    const CODE_PRODUCT_INVALID = 1008; // 商品未上架
+    const CODE_PRODUCT_ADD_FAVORITE = 1009; // 商品未上架
+    const CODE_PRODUCT_NOT_FAVORITE = 1010; // 商品未收藏
+    const CODE_COUPON_CODE_NOT_FOUND= 1011; // 优惠券不存在
+    const CODE_COUPON_CODE_HAS_EXCHANGED = 1012; // 优惠券已被兑换完毕
+    const CODE_COUPON_CODE_NOT_START = 1013; // 优惠券当前不能使用
+    const CODE_COUPON_CODE_EXPIRED = 1014; // 优惠券已过期
+    const CODE_ORDER_AMOUNT_NOT_REQUIRED = 1015; // 订单的总金额小于优惠券的最低金额
+    const CODE_COUPON_USER_HAS_USED = 1016; // 不可重复使用同一张优惠券
+
 
     public static $message = [
         self::CODE_SUCCESS => "成功",
@@ -32,6 +39,12 @@ class Codes
         self::CODE_PRODUCT_INVALID => "商品未上架",
         self::CODE_PRODUCT_ADD_FAVORITE => "商品已收藏",
         self::CODE_PRODUCT_NOT_FAVORITE => "商品未收藏",
+        self::CODE_COUPON_CODE_NOT_FOUND => "优惠券不存在",
+        self::CODE_COUPON_CODE_HAS_EXCHANGED => "优惠券已被兑换完毕",
+        self::CODE_COUPON_CODE_NOT_START => "优惠券当前不能使用",
+        self::CODE_COUPON_CODE_EXPIRED => "优惠券已过期",
+        self::CODE_ORDER_AMOUNT_NOT_REQUIRED => "订单金额不满足该优惠券最低金额",
+        self::CODE_COUPON_USER_HAS_USED => "改优惠券已经被使用过了",
     ];
 
 

@@ -48,6 +48,10 @@ class CloseOrderJob implements ShouldQueue
             foreach ($this->order->items as $item) {
                 $item->productSku->addStock($item->amount);
             }
+            if ($this->order->couponCode) {
+                // 关闭订单减少优惠券用量
+                $this->order->couponCode->changeUsed(false);
+            }
         });
     }
 }

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\dict\Codes;
 use App\Http\Controllers\Controller;
 use App\Services\impl\CartItemServiceImpl;
+use App\Services\impl\CouponCodeServiceImpl;
 use App\Services\impl\OrderServiceImpl;
 use App\Services\impl\PageServiceImpl;
 use App\Services\impl\ProductServicesImpl;
@@ -51,6 +52,13 @@ class BaseController extends Controller
      */
     public OrderServiceImpl $orderService;
 
+    /**
+     * 优惠券服务
+     *
+     * @var CouponCodeServiceImpl
+     */
+    public CouponCodeServiceImpl $couponCodeService;
+
 
     public function __construct()
     {
@@ -59,6 +67,7 @@ class BaseController extends Controller
         $this->pageService = new PageServiceImpl();
         $this->cartItemService = new CartItemServiceImpl();
         $this->orderService = new OrderServiceImpl();
+        $this->couponCodeService = new CouponCodeServiceImpl();
     }
 
     /**

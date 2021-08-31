@@ -4,7 +4,7 @@ namespace App\Services;
 
 interface OrderServicesIf
 {
-    public function createOrder($user, $data);
+    public function createOrder($user, $data, $coupon);
     public function orderListsByUser($user);
     public function orderPaymentByAli($order);
     public function orderPaymentByWechat($order);
