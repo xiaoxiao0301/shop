@@ -67,6 +67,8 @@ class OrderController extends AdminController
 
             });
 
+            $grid->disableRowSelector();
+
             $grid->disableFilterButton();
             $grid->disableCreateButton();
             $grid->disableEditButton();

@@ -92,4 +92,14 @@ class Order extends BaseModel
         return $no;
     }
 
+
+    /**
+     *
+     * @return BelongsTo
+     */
+    public function couponCode(): BelongsTo
+    {
+        return $this->belongsTo(CouponCode::class);
+    }
+
 }

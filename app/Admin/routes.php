@@ -23,4 +23,6 @@ Route::group([
     $router->post('orders/{order}/ship', 'OrderController@ship')->name('order.ship');
     $router->post('orders/{order}/refund', 'OrderController@handleRefund')->name('order.refund');
 
+    $router->resource('coupons', 'CouponCodeController');
+
 });
