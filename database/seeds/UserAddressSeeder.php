@@ -1,5 +1,7 @@
 <?php
 
+use App\Models\User;
+use App\Models\UserAddress;
 use Illuminate\Database\Seeder;
 
 class UserAddressSeeder extends Seeder
@@ -11,6 +13,8 @@ class UserAddressSeeder extends Seeder
      */
     public function run()
     {
-        factory(\App\Models\UserAddress::class, 10)->create();
+        User::all()->each(function (User $user) {
+            factory(UserAddress::class, random_int(1, 3))->create(['user_id' => $user->user_id]);
+        });
     }
 }
