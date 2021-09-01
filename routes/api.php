@@ -1,6 +1,7 @@
 <?php
 
-use Illuminate\Http\Request;
+use App\Http\Controllers\Api\AuthorizationsController;
+use App\Http\Controllers\Api\UsersController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -14,6 +15,30 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('auth:api')->get('/user', function (Request $request) {
-    return $request->user();
+// v1 版本的api接口
+$version = "v1";
+Route::prefix($version)->group(function () {
+    // |---------------------------------------- 不用登陆就能访问的接口
+
+    // 注册，登陆获取验证码
+    Route::post('code', [AuthorizationsController::class, 'code'])
+        ->name('api.register.code');
+
+    // 登陆
+    Route::post('login', [UsersController::class, 'store'])
+        ->name('api.user.login');
+
+    // 刷新token
+    Route::post('refresh-token', [UsersController::class, 'refreshToken'])
+        ->name('api.refresh.token');
+
+    // |----------------------------------------  需要登陆认证的接口
+    Route::middleware('auth')->group(function () {
+
+
+
+
+    });
 });
+
+

@@ -2,6 +2,8 @@
 
 namespace App\Exceptions;
 
+use App\Dict\ResponseJsonData;
+use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 
 class Handler extends ExceptionHandler
@@ -12,7 +14,7 @@ class Handler extends ExceptionHandler
      * @var array
      */
     protected $dontReport = [
-        //
+        InvalidRequestException::class,
     ];
 
     /**
@@ -32,6 +34,8 @@ class Handler extends ExceptionHandler
      */
     public function register()
     {
-        //
+        $this->renderable(function (AuthenticationException $exception, $request) {
+            return ResponseJsonData::responseUnAuthorization('请重新登陆');
+        });
     }
 }
