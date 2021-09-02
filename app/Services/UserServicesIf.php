@@ -8,4 +8,9 @@ interface UserServicesIf
     public function getUserInfoByPhone($phone);
     public function checkLoginCode($data);
     public function saveUser($phone);
+
+    public function saveUserAddress($addressData);
+    public function updateUserAddress($address, $addressData);
+    public function deleteUserAddress($address);
+    public function getLoginAddressLists();
 }

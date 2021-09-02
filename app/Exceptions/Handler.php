@@ -5,6 +5,7 @@ namespace App\Exceptions;
 use App\Dict\ResponseJsonData;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class Handler extends ExceptionHandler
 {
@@ -36,6 +37,10 @@ class Handler extends ExceptionHandler
     {
         $this->renderable(function (AuthenticationException $exception, $request) {
             return ResponseJsonData::responseUnAuthorization('请重新登陆');
+        });
+
+        $this->renderable(function (NotFoundHttpException $exception, $request) {
+            return ResponseJsonData::responseNotFound('数据不存在');
         });
     }
 }

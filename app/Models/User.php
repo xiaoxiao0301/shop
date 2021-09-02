@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -84,5 +85,18 @@ class User extends Authenticatable implements JWTSubject
     {
         return app('snowflake')->id();
     }
+
+    /**
+     * 一对多正向，关联收货地址
+     *
+     * @return HasMany
+     */
+    public function addresses()
+    {
+        return $this->hasMany(UserAddress::class, 'user_id', 'user_id');
+    }
+
+
+
 
 }

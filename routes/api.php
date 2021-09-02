@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\AuthorizationsController;
+use App\Http\Controllers\Api\UserAddressesController;
 use App\Http\Controllers\Api\UsersController;
 use Illuminate\Support\Facades\Route;
 
@@ -18,7 +19,7 @@ use Illuminate\Support\Facades\Route;
 // v1 版本的api接口
 $version = "v1";
 Route::prefix($version)->group(function () {
-    // |---------------------------------------- 不用登陆就能访问的接口
+    // |---------------------------------------- 不用登陆就能访问的接口   ------------------------|
 
     // 注册，登陆获取验证码
     Route::post('code', [AuthorizationsController::class, 'code'])
@@ -32,11 +33,22 @@ Route::prefix($version)->group(function () {
     Route::post('refresh-token', [UsersController::class, 'refreshToken'])
         ->name('api.refresh.token');
 
-    // |----------------------------------------  需要登陆认证的接口
+    // |----------------------------------------  需要登陆认证的接口   ------------------------|
     Route::middleware('auth')->group(function () {
 
-
-
+        // |------------------------ 收货地址  ------------------------|
+        // 添加收货地址
+        Route::post('address', [UserAddressesController::class, 'store'])
+            ->name('api.address.add');
+        // 更新收货地址
+        Route::put('address/{address}', [UserAddressesController::class, 'update'])
+            ->name('api.address.edit');
+        // 删除收货地址
+        Route::delete('address/{address}', [UserAddressesController::class, 'destroy'])
+            ->name('api.address.delete');
+        // 收货地址列表
+        Route::get('addresses', [UserAddressesController::class, 'index'])
+            ->name('api.address.list');
 
     });
 });
