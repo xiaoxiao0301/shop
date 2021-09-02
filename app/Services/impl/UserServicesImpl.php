@@ -142,4 +142,45 @@ class UserServicesImpl implements UserServicesIf
         return $user->addresses->toArray();
     }
 
+    /**
+     * 收藏商品
+     *
+     * @param $product
+     * @throws InvalidRequestException
+     * @return JsonResponse
+     */
+    public function addFavoriteProduct($product): JsonResponse
+    {
+        $user = $this->getUserInfoFromJwt();
+        if ($user->favoriteProducts()->find($product->id)) {
+            throw new InvalidRequestException('商品已收藏');
+        }
+        $user->favoriteProducts()->attach($product);
+        return ResponseJsonData::responseOk();
+    }
+
+    /**
+     * 取消收藏
+     *
+     * @param $product
+     * @return JsonResponse
+     */
+    public function deleteFavoriteProduct($product): JsonResponse
+    {
+        $user = $this->getUserInfoFromJwt();
+        $user->favoriteProducts()->detach($product);
+        return ResponseJsonData::responseOk();
+    }
+
+    /**
+     * 收藏列表
+     *
+     * @return mixed
+     */
+    public function userFavoriteProductLists()
+    {
+        $user = $this->getUserInfoFromJwt();
+        return $user->favoriteProducts->toArray();
+    }
+
 }

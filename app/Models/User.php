@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -96,7 +97,21 @@ class User extends Authenticatable implements JWTSubject
         return $this->hasMany(UserAddress::class, 'user_id', 'user_id');
     }
 
-
+    /**
+     * 多对多，收藏商品
+     *
+     * @return BelongsToMany
+     */
+    public function favoriteProducts(): BelongsToMany
+    {
+        // 第五个字段指定我们在当前模型获取值得字段
+        return $this->belongsToMany(
+            Product::class,
+            'user_favorite_products',
+            'user_id',
+            'product_id',
+        'user_id')->as('u_p')->withTimestamps();
+    }
 
 
 }

@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\Api\AuthorizationsController;
+use App\Http\Controllers\Api\FavoriteProductsController;
+use App\Http\Controllers\Api\ProductsController;
 use App\Http\Controllers\Api\UserAddressesController;
 use App\Http\Controllers\Api\UsersController;
 use Illuminate\Support\Facades\Route;
@@ -33,6 +35,14 @@ Route::prefix($version)->group(function () {
     Route::post('refresh-token', [UsersController::class, 'refreshToken'])
         ->name('api.refresh.token');
 
+
+    // 商品列表
+    Route::get('products', [ProductsController::class, 'index'])
+        ->name('api.products.list');
+    Route::get('products/{product}', [ProductsController::class, 'show'])
+        ->name('api.product.show');
+
+
     // |----------------------------------------  需要登陆认证的接口   ------------------------|
     Route::middleware('auth')->group(function () {
 
@@ -50,7 +60,21 @@ Route::prefix($version)->group(function () {
         Route::get('addresses', [UserAddressesController::class, 'index'])
             ->name('api.address.list');
 
+
+        // |------------------------ 商品  ------------------------|
+        // 收藏商品
+        Route::post('products/{product}/favorite', [FavoriteProductsController::class, 'store'])
+            ->name('api.product.favorite');
+        // 取消收藏商品
+        Route::delete('products/{product}/favorite', [FavoriteProductsController::class, 'destroy'])
+            ->name('api.product.dis_favorite');
+        // 收藏列表
+        Route::get('favorites', [FavoriteProductsController::class, 'index'])
+            ->name('api.product.favorite.list');
     });
+
+
+
 });
 
 

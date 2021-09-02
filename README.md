@@ -23,3 +23,13 @@ https://laravel.com/docs/8.x/upgrade#seeder-factory-namespaces
 ```shell
 $ composer require overtrue/easy-sms
 ```
+
+# 后台
+
+框架： Dcat-Admin
+
+https://learnku.com/docs/dcat-admin/2.x/install/8081
+
+```shell
+composer require dcat/laravel-admin:"2.*" -vvv
+```

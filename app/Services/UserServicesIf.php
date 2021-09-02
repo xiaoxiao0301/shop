@@ -13,4 +13,8 @@ interface UserServicesIf
     public function updateUserAddress($address, $addressData);
     public function deleteUserAddress($address);
     public function getLoginAddressLists();
+
+    public function addFavoriteProduct($product);
+    public function deleteFavoriteProduct($product);
+    public function userFavoriteProductLists();
 }

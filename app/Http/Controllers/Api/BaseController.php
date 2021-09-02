@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Services\impl\PageServicesImpl;
+use App\Services\impl\ProductServicesImpl;
 use App\Services\impl\SmsServicesImpl;
 use App\Services\impl\TokenServicesImpl;
 use App\Services\impl\UserServicesImpl;
@@ -36,12 +37,18 @@ class BaseController extends Controller
      */
     protected $pageService;
 
+    /**
+     * @var ProductServicesImpl
+     */
+    protected $productService;
+
     public function __construct()
     {
         $this->userService = new UserServicesImpl();
         $this->smsService = new SmsServicesImpl();
         $this->tokenService = new TokenServicesImpl();
         $this->pageService = new PageServicesImpl();
+        $this->productService = new ProductServicesImpl();
     }
 
 
