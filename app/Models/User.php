@@ -53,13 +53,15 @@ class User extends Authenticatable implements JWTSubject
     /**
      * @return array
      */
-    public function getJWTCustomClaims()
+    public function getJWTCustomClaims(): array
     {
         return [];
     }
 
     /**
      * 模型-事件：注册在触发各种模型事件时执行的闭包，而不使用自定义事件类
+     *
+     * @return void
      */
     protected static function boot()
     {
@@ -92,7 +94,7 @@ class User extends Authenticatable implements JWTSubject
      *
      * @return HasMany
      */
-    public function addresses()
+    public function addresses(): HasMany
     {
         return $this->hasMany(UserAddress::class, 'user_id', 'user_id');
     }
@@ -113,5 +115,15 @@ class User extends Authenticatable implements JWTSubject
         'user_id')->as('u_p')->withTimestamps();
     }
 
+
+    /**
+     * 一对多，购物车
+     *
+     * @return HasMany
+     */
+    public function cartItems(): HasMany
+    {
+        return $this->hasMany(CartItem::class, 'user_id', 'user_id');
+    }
 
 }

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\AuthorizationsController;
+use App\Http\Controllers\Api\CartItemsController;
 use App\Http\Controllers\Api\FavoriteProductsController;
 use App\Http\Controllers\Api\ProductsController;
 use App\Http\Controllers\Api\UserAddressesController;
@@ -71,6 +72,21 @@ Route::prefix($version)->group(function () {
         // 收藏列表
         Route::get('favorites', [FavoriteProductsController::class, 'index'])
             ->name('api.product.favorite.list');
+
+
+        // |------------------------ 购物车  ------------------------|
+        // 购物车添加商品
+        Route::post('cart', [CartItemsController::class, 'store'])
+            ->name('api.cart.create');
+        // 从购物车移除商品
+        Route::delete('carts/{sku}', [CartItemsController::class, 'destroy'])
+            ->name('api.cart.delete');
+        // 购物车列表
+        Route::get('carts', [CartItemsController::class, 'index'])
+            ->name('api.carts.list');
+
+
+
     });
 
 

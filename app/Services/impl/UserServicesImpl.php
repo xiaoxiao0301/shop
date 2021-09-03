@@ -4,6 +4,7 @@ namespace App\Services\impl;
 
 use App\Dict\ResponseJsonData;
 use App\Exceptions\InvalidRequestException;
+use App\Models\CartItem;
 use App\Models\User;
 use App\Models\UserAddress;
 use App\Services\UserServicesIf;
@@ -181,6 +182,58 @@ class UserServicesImpl implements UserServicesIf
     {
         $user = $this->getUserInfoFromJwt();
         return $user->favoriteProducts->toArray();
+    }
+
+    /**
+     * 购物车商品列表
+     *
+     * @return mixed
+     */
+    public function getUserCartItemLists()
+    {
+        $user = $this->getUserInfoFromJwt();
+        return $user->cartItems()->with(['productSku.product'])->get()->toArray();
+    }
+
+    /**
+     * 购物车移除商品
+     *
+     * @param $productSkuIds
+     * @return JsonResponse
+     */
+    public function deleteProductFromCartItem($productSkuIds): JsonResponse
+    {
+        if (!is_array($productSkuIds)) {
+            $skuIds = [$productSkuIds];
+        }
+        $user = $this->getUserInfoFromJwt();
+        /** @var User $user */
+        $user->cartItems()->whereIn('product_sku_id', $skuIds)->delete();
+        return ResponseJsonData::responseOk();
+    }
+
+    /**
+     * 购物车添加商品
+     *
+     * @param $productSkuId
+     * @param $amount
+     * @return JsonResponse
+     */
+    public function addProductToCartItem($productSkuId, $amount): JsonResponse
+    {
+        // 添加逻辑是商品已存在更新数量否则直接创建记录
+        $user = $this->getUserInfoFromJwt();
+        /** @var User $user */
+        if ($cartItem = $user->cartItems()->where('product_sku_id',$productSkuId)->first()) {
+            $cartItem->increment('amount', $amount);
+        } else {
+            $cartItem = new CartItem(['amount' => $amount]);
+            $cartItem->user()->associate($user);
+            $cartItem->productSku()->associate($productSkuId);
+            $cartItem->save();
+        }
+        return ResponseJsonData::responseOk();
+
     }
 
 }
