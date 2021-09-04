@@ -1,0 +1,53 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "电商Api",
+        "description": "Laravel8 Shop Api Docs",
+        "version": "1.0.0"
+    },
+    "servers": [
+        {
+            "url": "http://local.shop.cn/api",
+            "description": "Shop OpenApi Server"
+        }
+    ],
+    "paths": {
+        "/v1/code": {
+            "post": {
+                "tags": [
+                    "用户"
+                ],
+                "summary": "获取验证码",
+                "description": "用户注册或登陆时输入手机号获取验证码",
+                "operationId": "code",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "phone"
+                                ],
+                                "properties": {
+                                    "phone": {
+                                        "type": "string",
+                                        "format": "phone"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "ok"
+                    }
+                }
+            }
+        }
+    },
+    "security": [
+        []
+    ]
+}

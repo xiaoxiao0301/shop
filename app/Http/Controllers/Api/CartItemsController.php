@@ -7,7 +7,7 @@ use App\Http\Requests\Api\CartItemRequest;
 use App\Models\ProductSku;
 use Illuminate\Http\JsonResponse;
 
-class CartItemsController extends BaseController
+class CartItemsController extends ApiBaseController
 {
 
     /**

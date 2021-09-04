@@ -9,7 +9,7 @@ use App\Models\UserAddress;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\JsonResponse;
 
-class UserAddressesController extends BaseController
+class UserAddressesController extends ApiBaseController
 {
     /**
      * 保存收货地址

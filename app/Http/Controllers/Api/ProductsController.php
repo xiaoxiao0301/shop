@@ -8,7 +8,7 @@ use App\Http\Requests\Api\PageRequest;
 use App\Models\Product;
 use Illuminate\Http\JsonResponse;
 
-class ProductsController extends BaseController
+class ProductsController extends ApiBaseController
 {
     /**
      * 商品列表

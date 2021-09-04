@@ -6,7 +6,7 @@ use App\Http\Requests\Api\PageRequest;
 use App\Models\Product;
 use Illuminate\Http\JsonResponse;
 
-class FavoriteProductsController extends BaseController
+class FavoriteProductsController extends ApiBaseController
 {
     /**
      * 收藏商品

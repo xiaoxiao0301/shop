@@ -31,5 +31,12 @@ $ composer require overtrue/easy-sms
 https://learnku.com/docs/dcat-admin/2.x/install/8081
 
 ```shell
-composer require dcat/laravel-admin:"2.*" -vvv
+$ composer require dcat/laravel-admin:"2.*" -vvv
+```
+
+# 接口
+
+> swagger
+```shell
+$ composer require "darkaonline/l5-swagger"
 ```

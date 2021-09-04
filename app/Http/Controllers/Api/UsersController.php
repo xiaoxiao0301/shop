@@ -7,7 +7,7 @@ use App\Http\Requests\Api\RefreshTokenRequest;
 use App\Http\Requests\Api\UserRequest;
 use Illuminate\Http\JsonResponse;
 
-class UsersController extends BaseController
+class UsersController extends ApiBaseController
 {
     /**
      * 注册/登陆

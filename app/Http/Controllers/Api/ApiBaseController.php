@@ -9,7 +9,26 @@ use App\Services\impl\SmsServicesImpl;
 use App\Services\impl\TokenServicesImpl;
 use App\Services\impl\UserServicesImpl;
 
-class BaseController extends Controller
+/**
+ * Class BaseController
+ *
+ * @package App\Http\Controllers\Api
+ *
+ * @OA\Info (
+ *     title="电商Api",
+ *     description="Laravel8 Shop Api Docs",
+ *     version="1.0.0",
+ * )
+ *
+ * @OA\Server(
+ *      url="http://local.shop.cn/api",
+ *      description="Shop OpenApi Server"
+ * )
+
+ *
+ *
+ */
+class ApiBaseController extends Controller
 {
     /**
      * 用户
