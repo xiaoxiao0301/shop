@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\AuthorizationsController;
 use App\Http\Controllers\Api\CartItemsController;
+use App\Http\Controllers\Api\CouponsController;
 use App\Http\Controllers\Api\FavoriteProductsController;
 use App\Http\Controllers\Api\ProductsController;
 use App\Http\Controllers\Api\UserAddressesController;
@@ -38,10 +39,15 @@ Route::prefix($version)->group(function () {
 
 
     // 商品列表
-    Route::get('products', [ProductsController::class, 'index'])
+    Route::get('products/{shopId?}', [ProductsController::class, 'index'])
         ->name('api.products.list');
+    // 商品详情
     Route::get('products/{product}', [ProductsController::class, 'show'])
         ->name('api.product.show');
+
+    // 店铺优惠券列表
+    Route::get('coupons/{shopId}', [CouponsController::class, 'index'])
+        ->name('api.shop.coupons');
 
 
     // |----------------------------------------  需要登陆认证的接口   ------------------------|
@@ -85,6 +91,14 @@ Route::prefix($version)->group(function () {
         Route::get('carts', [CartItemsController::class, 'index'])
             ->name('api.carts.list');
 
+
+        // |------------------------ 用户  ------------------------|
+        // 领取优惠券
+        Route::post('user/{couponId}/collect', [CouponsController::class, 'collectCoupon'])
+            ->name('api.user.collect.coupon');
+        // 优惠券列表
+        Route::get('user/coupons', [UsersController::class, 'couponsList'])
+            ->name('api.user.coupons.list');
 
 
     });

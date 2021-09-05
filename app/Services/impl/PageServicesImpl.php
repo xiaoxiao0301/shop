@@ -12,6 +12,7 @@ use Illuminate\Http\JsonResponse;
 class PageServicesImpl implements PageServicesIf
 {
     /**
+     *
      * @param $page
      * @param $size
      * @param $data

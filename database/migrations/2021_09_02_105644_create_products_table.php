@@ -23,6 +23,7 @@ class CreateProductsTable extends Migration
             $table->unsignedInteger('sold_count')->default(0)->comment('销量');
             $table->unsignedInteger('review_count')->default(0)->comment('评论数量');
             $table->decimal('price', 10, 2)->comment('SKU最低价格');
+            $table->unsignedBigInteger('shop_id')->nullable()->comment('店铺编号');
             $table->timestamps();
             $table->softDeletes();
         });

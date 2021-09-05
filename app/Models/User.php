@@ -126,4 +126,19 @@ class User extends Authenticatable implements JWTSubject
         return $this->hasMany(CartItem::class, 'user_id', 'user_id');
     }
 
+    /**
+     * 多对多，领取优惠券
+     *
+     * @return BelongsToMany
+     */
+    public function coupons(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            Coupon::class,
+            'user_has_coupons',
+            'user_id',
+            'coupon_id',
+            'user_id'
+        )->withPivot('used')->withTimestamps();
+    }
 }

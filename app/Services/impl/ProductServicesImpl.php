@@ -18,9 +18,13 @@ class ProductServicesImpl implements ProductServicesIf
      * @param null $order
      * @return array
      */
-    public function getProductLists($search = null, $order = null): array
+    public function getProductListsByShopId($search = null, $order = null, $shopId = null): array
     {
         $builder = Product::query()->where('on_sale', true);
+
+        if (!is_null($shopId)) {
+            $builder->where('shop_id', $shopId);
+        }
 
         // 关键字查询
         if (!is_null($search)) {

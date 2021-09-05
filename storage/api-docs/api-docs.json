@@ -45,6 +45,95 @@
                     }
                 }
             }
+        },
+        "/v1/coupons/{shopId}": {
+            "get": {
+                "tags": [
+                    "优惠券"
+                ],
+                "summary": "获取优惠券",
+                "description": "获取指定店铺的优惠券",
+                "operationId": "couponIndex",
+                "parameters": [
+                    {
+                        "name": "shopId",
+                        "in": "path",
+                        "description": "店铺编号",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64",
+                            "minimum": 1
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "页码",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64",
+                            "default": 1,
+                            "minimum": 1
+                        }
+                    },
+                    {
+                        "name": "size",
+                        "in": "query",
+                        "description": "每页大小",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64",
+                            "default": 20,
+                            "minimum": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "ok",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "code": {
+                                            "description": "业务状态吗, 非0表示失败",
+                                            "type": "integer"
+                                        },
+                                        "message": {
+                                            "description": "提示信息",
+                                            "type": "string"
+                                        },
+                                        "data": {
+                                            "description": "请求结果",
+                                            "properties": {
+                                                "coupons": {
+                                                    "type": "object"
+                                                },
+                                                "current_page": {
+                                                    "description": "当前请求页码",
+                                                    "type": "integer"
+                                                },
+                                                "total_page": {
+                                                    "description": "总页码",
+                                                    "type": "integer"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "not found"
+                    }
+                }
+            }
         }
     },
     "security": [

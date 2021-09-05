@@ -16,14 +16,14 @@ class ProductsController extends ApiBaseController
      * @param PageRequest $request
      * @return JsonResponse
      */
-    public function index(PageRequest $request): JsonResponse
+    public function index(PageRequest $request, $shopId = null): JsonResponse
     {
         $page = $request->input('page');
         $size = $request->input('size');
         $search =  $request->input('search') ?? null;
         $order = $request->input('order') ?? null;
 
-        $products = $this->productService->getProductLists($search, $order);
+        $products = $this->productService->getProductListsByShopId($search, $order, $shopId);
         return $this->pageService->customPage($page, $size, $products, 'products');
     }
 

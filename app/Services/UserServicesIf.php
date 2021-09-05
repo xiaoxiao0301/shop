@@ -21,4 +21,7 @@ interface UserServicesIf
     public function addProductToCartItem($productSkuId, $amount);
     public function deleteProductFromCartItem($productSkuIds);
     public function getUserCartItemLists();
+
+    public function collectShopCoupon($couponId);
+    public function couponLists();
 }

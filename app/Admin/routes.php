@@ -16,5 +16,6 @@ Route::group([
 
     $router->resource('users', 'UserController');
     $router->resource('products', 'ProductController');
+    $router->resource('coupons', 'CouponController');
 
 });

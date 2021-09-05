@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Dict\ResponseJsonData;
 use App\Exceptions\InvalidRequestException;
 use App\Http\Requests\Api\RefreshTokenRequest;
 use App\Http\Requests\Api\UserRequest;
@@ -34,5 +35,17 @@ class UsersController extends ApiBaseController
     {
         $token = $request->input('token');
         return $this->tokenService->refreshToken($token);
+    }
+
+
+    /**
+     * 已领取优惠券列表
+     *
+     * @return JsonResponse
+     */
+    public function couponsList(): JsonResponse
+    {
+        $coupons = $this->userService->couponLists();
+        return ResponseJsonData::responseOk($coupons);
     }
 }

@@ -236,4 +236,35 @@ class UserServicesImpl implements UserServicesIf
 
     }
 
+
+    /**
+     * 领取优惠券
+     *
+     * @param $couponId
+     * @return JsonResponse
+     * @throws InvalidRequestException
+     */
+    public function collectShopCoupon($couponId): JsonResponse
+    {
+        $user = $this->getUserInfoFromJwt();
+        /** @var User $user */
+        if ($user->coupons()->where('coupon_id', $couponId)->exists()) {
+            throw new InvalidRequestException('已领取过了');
+        } else {
+            $user->coupons()->attach($couponId);
+            return ResponseJsonData::responseOk();
+        }
+    }
+
+    /**
+     * 优惠券列表
+     *
+     * @return mixed
+     */
+    public function couponLists()
+    {
+        $user = $this->getUserInfoFromJwt();
+        /** @var User $user */
+        return $user->coupons->toArray();
+    }
 }
