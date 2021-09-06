@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "dd59ccf18f38d29bf17c423c10ddfbd7",
+    "content-hash": "044c25536308773ad4cf510caa8e0449",
     "packages": [
         {
             "name": "asm89/stack-cors",
@@ -67,6 +67,65 @@
                 "source": "https://github.com/asm89/stack-cors/tree/v2.0.3"
             },
             "time": "2021-03-11T06:42:03+00:00"
+        },
+        {
+            "name": "bacon/bacon-qr-code",
+            "version": "2.0.4",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Bacon/BaconQrCode.git",
+                "reference": "f73543ac4e1def05f1a70bcd1525c8a157a1ad09"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/Bacon/BaconQrCode/zipball/f73543ac4e1def05f1a70bcd1525c8a157a1ad09",
+                "reference": "f73543ac4e1def05f1a70bcd1525c8a157a1ad09",
+                "shasum": "",
+                "mirrors": [
+                    {
+                        "url": "https://mirrors.aliyun.com/composer/dists/%package%/%reference%.%type%",
+                        "preferred": true
+                    }
+                ]
+            },
+            "require": {
+                "dasprid/enum": "^1.0.3",
+                "ext-iconv": "*",
+                "php": "^7.1 || ^8.0"
+            },
+            "require-dev": {
+                "phly/keep-a-changelog": "^1.4",
+                "phpunit/phpunit": "^7 | ^8 | ^9",
+                "squizlabs/php_codesniffer": "^3.4"
+            },
+            "suggest": {
+                "ext-imagick": "to generate QR code images"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "BaconQrCode\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "BSD-2-Clause"
+            ],
+            "authors": [
+                {
+                    "name": "Ben Scholzen 'DASPRiD'",
+                    "email": "mail@dasprids.de",
+                    "homepage": "https://dasprids.de/",
+                    "role": "Developer"
+                }
+            ],
+            "description": "BaconQrCode is a QR code generator for PHP.",
+            "homepage": "https://github.com/Bacon/BaconQrCode",
+            "support": {
+                "issues": "https://github.com/Bacon/BaconQrCode/issues",
+                "source": "https://github.com/Bacon/BaconQrCode/tree/2.0.4"
+            },
+            "time": "2021-06-18T13:26:35+00:00"
         },
         {
             "name": "brick/math",
@@ -297,6 +356,59 @@
                 }
             ],
             "time": "2021-07-12T06:31:40+00:00"
+        },
+        {
+            "name": "dasprid/enum",
+            "version": "1.0.3",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/DASPRiD/Enum.git",
+                "reference": "5abf82f213618696dda8e3bf6f64dd042d8542b2"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/DASPRiD/Enum/zipball/5abf82f213618696dda8e3bf6f64dd042d8542b2",
+                "reference": "5abf82f213618696dda8e3bf6f64dd042d8542b2",
+                "shasum": "",
+                "mirrors": [
+                    {
+                        "url": "https://mirrors.aliyun.com/composer/dists/%package%/%reference%.%type%",
+                        "preferred": true
+                    }
+                ]
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^7 | ^8 | ^9",
+                "squizlabs/php_codesniffer": "^3.4"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "DASPRiD\\Enum\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "BSD-2-Clause"
+            ],
+            "authors": [
+                {
+                    "name": "Ben Scholzen 'DASPRiD'",
+                    "email": "mail@dasprids.de",
+                    "homepage": "https://dasprids.de/",
+                    "role": "Developer"
+                }
+            ],
+            "description": "PHP 7.1 enum implementation",
+            "keywords": [
+                "enum",
+                "map"
+            ],
+            "support": {
+                "issues": "https://github.com/DASPRiD/Enum/issues",
+                "source": "https://github.com/DASPRiD/Enum/tree/1.0.3"
+            },
+            "time": "2020-10-02T16:03:48+00:00"
         },
         {
             "name": "dcat/laravel-admin",
@@ -1228,6 +1340,84 @@
                 }
             ],
             "time": "2020-12-29T14:50:06+00:00"
+        },
+        {
+            "name": "endroid/qr-code",
+            "version": "4.3.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/endroid/qr-code.git",
+                "reference": "98f6d4024289ad3a8d7f3e63cab947ef6929dcdb"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/endroid/qr-code/zipball/98f6d4024289ad3a8d7f3e63cab947ef6929dcdb",
+                "reference": "98f6d4024289ad3a8d7f3e63cab947ef6929dcdb",
+                "shasum": "",
+                "mirrors": [
+                    {
+                        "url": "https://mirrors.aliyun.com/composer/dists/%package%/%reference%.%type%",
+                        "preferred": true
+                    }
+                ]
+            },
+            "require": {
+                "bacon/bacon-qr-code": "^2.0",
+                "php": "^7.3||^8.0"
+            },
+            "require-dev": {
+                "endroid/quality": "dev-master",
+                "ext-gd": "*",
+                "khanamiryan/qrcode-detector-decoder": "^1.0.4",
+                "setasign/fpdf": "^1.8.2"
+            },
+            "suggest": {
+                "ext-gd": "Enables you to write PNG images",
+                "khanamiryan/qrcode-detector-decoder": "Enables you to use the image validator",
+                "roave/security-advisories": "Makes sure package versions with known security issues are not installed",
+                "setasign/fpdf": "Enables you to use the PDF writer"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "4.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Endroid\\QrCode\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Jeroen van den Enden",
+                    "email": "info@endroid.nl"
+                }
+            ],
+            "description": "Endroid QR Code",
+            "homepage": "https://github.com/endroid/qr-code",
+            "keywords": [
+                "code",
+                "endroid",
+                "php",
+                "qr",
+                "qrcode"
+            ],
+            "support": {
+                "issues": "https://github.com/endroid/qr-code/issues",
+                "source": "https://github.com/endroid/qr-code/tree/4.3.0"
+            },
+            "funding": [
+                {
+                    "url": "https://github.com/endroid",
+                    "type": "github"
+                }
+            ],
+            "time": "2021-08-28T12:29:40+00:00"
         },
         {
             "name": "fideloper/proxy",
@@ -3273,16 +3463,16 @@
         },
         {
             "name": "php-di/php-di",
-            "version": "6.3.4",
+            "version": "6.3.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/PHP-DI/PHP-DI.git",
-                "reference": "f53bcba06ab31b18e911b77c039377f4ccd1f7a5"
+                "reference": "b8126d066ce144765300ee0ab040c1ed6c9ef588"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/PHP-DI/PHP-DI/zipball/f53bcba06ab31b18e911b77c039377f4ccd1f7a5",
-                "reference": "f53bcba06ab31b18e911b77c039377f4ccd1f7a5",
+                "url": "https://api.github.com/repos/PHP-DI/PHP-DI/zipball/b8126d066ce144765300ee0ab040c1ed6c9ef588",
+                "reference": "b8126d066ce144765300ee0ab040c1ed6c9ef588",
                 "shasum": "",
                 "mirrors": [
                     {
@@ -3339,7 +3529,7 @@
             ],
             "support": {
                 "issues": "https://github.com/PHP-DI/PHP-DI/issues",
-                "source": "https://github.com/PHP-DI/PHP-DI/tree/6.3.4"
+                "source": "https://github.com/PHP-DI/PHP-DI/tree/6.3.5"
             },
             "funding": [
                 {
@@ -3351,7 +3541,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2021-06-10T08:04:48+00:00"
+            "time": "2021-09-02T09:49:58+00:00"
         },
         {
             "name": "php-di/phpdoc-reader",
@@ -7526,16 +7716,16 @@
         },
         {
             "name": "yansongda/pay",
-            "version": "v3.0.4",
+            "version": "v3.0.6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/yansongda/pay.git",
-                "reference": "65639873aa01d72a58cbe1e3e9805a8c12430738"
+                "reference": "406dbe39074b68ca8700a2266b19546d272e1508"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/yansongda/pay/zipball/65639873aa01d72a58cbe1e3e9805a8c12430738",
-                "reference": "65639873aa01d72a58cbe1e3e9805a8c12430738",
+                "url": "https://api.github.com/repos/yansongda/pay/zipball/406dbe39074b68ca8700a2266b19546d272e1508",
+                "reference": "406dbe39074b68ca8700a2266b19546d272e1508",
                 "shasum": "",
                 "mirrors": [
                     {
@@ -7605,13 +7795,7 @@
                 "issues": "https://github.com/yansongda/pay/issues",
                 "source": "https://github.com/yansongda/pay"
             },
-            "funding": [
-                {
-                    "url": "https://github.com/yansongda",
-                    "type": "github"
-                }
-            ],
-            "time": "2021-08-28T14:32:53+00:00"
+            "time": "2021-09-02T12:43:48+00:00"
         },
         {
             "name": "yansongda/supports",

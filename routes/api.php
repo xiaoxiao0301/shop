@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\CartItemsController;
 use App\Http\Controllers\Api\CouponsController;
 use App\Http\Controllers\Api\FavoriteProductsController;
 use App\Http\Controllers\Api\OrdersController;
+use App\Http\Controllers\Api\PaysController;
 use App\Http\Controllers\Api\ProductsController;
 use App\Http\Controllers\Api\UserAddressesController;
 use App\Http\Controllers\Api\UsersController;
@@ -51,6 +52,12 @@ Route::prefix($version)->group(function () {
     Route::get('coupons/{shopId}', [CouponsController::class, 'index'])
         ->name('api.shop.coupons');
 
+    // 支付宝服务器端回调
+    Route::post('alipay/notify', [PaysController::class, 'aliPayNotify'])
+        ->name('api.alipay.notify');
+    // 微信支付回调
+    Route::post('wechat/notify', [PaysController::class, 'wechatPayNotify'])
+        ->name('api.wechat.notify');
 
     // |----------------------------------------  需要登陆认证的接口   ------------------------|
     Route::middleware('auth')->group(function () {
@@ -113,6 +120,15 @@ Route::prefix($version)->group(function () {
         // 订单详情
         Route::get('orders/{order}', [OrdersController::class, 'show'])
             ->name('api.order.show');
+
+        // |------------------------ 支付  ------------------------|
+        // 订单支付
+        Route::post('order/pay', [PaysController::class, 'pay'])
+            ->name('api.order.pay');
+        // 支付宝前端回调
+        Route::post('alipay/return', [PaysController::class, 'aliPayReturn'])
+            ->name('api.alipay.return');
+
 
     });
 

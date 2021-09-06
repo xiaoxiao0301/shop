@@ -6,7 +6,9 @@ use App\Http\Controllers\Controller;
 use App\Services\impl\CouponServicesImpl;
 use App\Services\impl\OrderServicesImpl;
 use App\Services\impl\PageServicesImpl;
+use App\Services\impl\PayServicesImpl;
 use App\Services\impl\ProductServicesImpl;
+use App\Services\impl\QrCodeServicesImpl;
 use App\Services\impl\SmsServicesImpl;
 use App\Services\impl\TokenServicesImpl;
 use App\Services\impl\UserServicesImpl;
@@ -80,6 +82,10 @@ class ApiBaseController extends Controller
      */
     protected $orderService;
 
+    /**
+     * @var PayServicesImpl
+     */
+    protected $payService;
 
     public function __construct()
     {
@@ -90,6 +96,7 @@ class ApiBaseController extends Controller
         $this->productService = new ProductServicesImpl();
         $this->couponService = new CouponServicesImpl();
         $this->orderService = new OrderServicesImpl();
+        $this->payService = new PayServicesImpl();
     }
 
 

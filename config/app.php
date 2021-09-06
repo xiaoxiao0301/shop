@@ -177,6 +177,8 @@ return [
 
         App\Providers\SmsServiceProvider::class,
         App\Providers\SnowflakeServiceProvider::class,
+
+        App\Providers\PayServiceProvider::class,
     ],
 
     /*
