@@ -24,6 +24,10 @@ https://laravel.com/docs/8.x/upgrade#seeder-factory-namespaces
 $ composer require overtrue/easy-sms
 ```
 
+> 定时任务
+
+使用定时任务来处理订单超时未支付问题
+
 # 后台
 
 框架： Dcat-Admin

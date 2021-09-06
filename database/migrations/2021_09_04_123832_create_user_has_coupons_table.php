@@ -19,6 +19,7 @@ class CreateUserHasCouponsTable extends Migration
 //            $table->foreign('user_id')->references('user_id')->on('users')->onDelete('cascade');
             $table->unsignedBigInteger('coupon_id');
             $table->foreign('coupon_id')->references('id')->on('coupons')->onDelete('cascade');
+            $table->unsignedBigInteger('order_id')->nullable()->comment('订单流水号');
             $table->boolean('used')->default(false)->comment('当前优惠券是否已被使用');
             $table->timestamps();
         });

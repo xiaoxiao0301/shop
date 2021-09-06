@@ -23,10 +23,16 @@ class CartItemsController extends ApiBaseController
         return $this->userService->addProductToCartItem($productSkuId, $amount);
     }
 
-    public function index()
+    /**
+     * 购物车列表
+     *
+     * @return JsonResponse
+     */
+    public function index(): JsonResponse
     {
         $carts = $this->userService->getUserCartItemLists();
-        return ResponseJsonData::responseOk($carts);
+        $addresses = $this->userService->getLoginAddressLists();
+        return ResponseJsonData::responseOk(compact('carts', 'addresses'));
     }
 
 

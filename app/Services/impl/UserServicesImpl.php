@@ -5,6 +5,7 @@ namespace App\Services\impl;
 use App\Dict\ResponseJsonData;
 use App\Exceptions\InvalidRequestException;
 use App\Models\CartItem;
+use App\Models\Coupon;
 use App\Models\User;
 use App\Models\UserAddress;
 use App\Services\UserServicesIf;
@@ -240,18 +241,24 @@ class UserServicesImpl implements UserServicesIf
     /**
      * 领取优惠券
      *
-     * @param $couponId
+     * @param $coupon
      * @return JsonResponse
      * @throws InvalidRequestException
      */
-    public function collectShopCoupon($couponId): JsonResponse
+    public function collectShopCoupon($coupon): JsonResponse
     {
+        if ($coupon->total_number - $coupon->got_number <= 0) {
+            throw new InvalidRequestException('优惠券暂无');
+        }
         $user = $this->getUserInfoFromJwt();
         /** @var User $user */
-        if ($user->coupons()->where('coupon_id', $couponId)->exists()) {
+        if ($user->coupons()->where('coupon_id', $coupon->id)->exists()) {
             throw new InvalidRequestException('已领取过了');
         } else {
-            $user->coupons()->attach($couponId);
+            $user->coupons()->attach($coupon);
+            // 更新优惠券领取数量
+            /** @var Coupon $coupon */
+            $coupon->updateCouponGotNumber();
             return ResponseJsonData::responseOk();
         }
     }

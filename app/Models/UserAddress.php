@@ -24,4 +24,13 @@ class UserAddress extends BaseModel
         return $this->belongsTo(User::class, 'user_id', 'user_id');
     }
 
+    /**
+     * 模型访问器, $userAddress->full_address 输出完整的地址
+     *
+     * @return string
+     */
+    public function getFullAddressAttribute(): string
+    {
+        return "{$this->province}{$this->city}{$this->district}{$this->address}";
+    }
 }

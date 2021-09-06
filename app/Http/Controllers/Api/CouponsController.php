@@ -116,6 +116,7 @@ class CouponsController extends ApiBaseController
      */
     public function collectCoupon($couponId): JsonResponse
     {
-        return $this->userService->collectShopCoupon($couponId);
+        $coupon = Coupon::find($couponId);
+        return $this->userService->collectShopCoupon($coupon);
     }
 }

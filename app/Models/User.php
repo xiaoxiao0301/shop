@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use DateTimeInterface;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -139,6 +140,28 @@ class User extends Authenticatable implements JWTSubject
             'user_id',
             'coupon_id',
             'user_id'
-        )->withPivot('used')->withTimestamps();
+        )->withPivot('used', 'order_id')->withTimestamps();
+    }
+
+
+    /**
+     * 一对多，一个用户多个订单
+     *
+     * @return HasMany
+     */
+    public function orders(): HasMany
+    {
+        return $this->hasMany(Order::class, 'user_id', 'user_id');
+    }
+
+    /**
+     * 参考 : https://learnku.com/docs/laravel/7.x/upgrade/7445#date-serialization
+     *
+     * @param DateTimeInterface $date
+     * @return string
+     */
+    protected function serializeDate(DateTimeInterface $date)
+    {
+        return $date->format('Y-m-d H:i:s');
     }
 }

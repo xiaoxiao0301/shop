@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\AuthorizationsController;
 use App\Http\Controllers\Api\CartItemsController;
 use App\Http\Controllers\Api\CouponsController;
 use App\Http\Controllers\Api\FavoriteProductsController;
+use App\Http\Controllers\Api\OrdersController;
 use App\Http\Controllers\Api\ProductsController;
 use App\Http\Controllers\Api\UserAddressesController;
 use App\Http\Controllers\Api\UsersController;
@@ -19,6 +20,7 @@ use Illuminate\Support\Facades\Route;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
+
 
 // v1 版本的api接口
 $version = "v1";
@@ -100,6 +102,17 @@ Route::prefix($version)->group(function () {
         Route::get('user/coupons', [UsersController::class, 'couponsList'])
             ->name('api.user.coupons.list');
 
+
+        // |------------------------ 订单  ------------------------|
+        // 创建订单
+        Route::post('order', [OrdersController::class, 'store'])
+            ->name('api.order.create');
+        // 订单列表
+        Route::get('orders', [OrdersController::class, 'index'])
+            ->name('api.orders.list');
+        // 订单详情
+        Route::get('orders/{order}', [OrdersController::class, 'show'])
+            ->name('api.order.show');
 
     });
 
