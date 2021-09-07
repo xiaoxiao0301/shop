@@ -21,7 +21,9 @@ use Illuminate\Support\Facades\Route;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
-
+Route::get('t', function () {
+    event(new \App\Events\OrderPaid(\App\Models\Order::find(10)));
+});
 
 // v1 版本的api接口
 $version = "v1";
@@ -108,6 +110,12 @@ Route::prefix($version)->group(function () {
         // 优惠券列表
         Route::get('user/coupons', [UsersController::class, 'couponsList'])
             ->name('api.user.coupons.list');
+        // 未读消息列表
+        Route::get('user/notifications', [UsersController::class, 'notificationLists'])
+            ->name('api.user.notifications');
+        // 标记已读
+        Route::post('user/notifications/read', [UsersController::class, 'makeNotificationAsRead'])
+            ->name('api.user.read.notification');
 
 
         // |------------------------ 订单  ------------------------|
@@ -126,7 +134,7 @@ Route::prefix($version)->group(function () {
         Route::post('order/pay', [PaysController::class, 'pay'])
             ->name('api.order.pay');
         // 支付宝前端回调
-        Route::post('alipay/return', [PaysController::class, 'aliPayReturn'])
+        Route::get('alipay/return', [PaysController::class, 'aliPayReturn'])
             ->name('api.alipay.return');
 
 

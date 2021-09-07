@@ -15,6 +15,7 @@ use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Collection;
 use Str;
 
 class UserServicesImpl implements UserServicesIf
@@ -274,4 +275,26 @@ class UserServicesImpl implements UserServicesIf
         /** @var User $user */
         return $user->coupons->toArray();
     }
+
+
+    /**
+     * 获取未读消息列表
+     *
+     * @return Collection
+     */
+    public function getNotificationsLists()
+    {
+        $user = $this->getUserInfoFromJwt();
+        /** @var User $user */
+        return $user->unreadNotifications()->get();
+    }
+
+
+    public function readAllNotifications()
+    {
+        $user = $this->getUserInfoFromJwt();
+        /** @var User $user */
+        $user->makeNotificationRead();
+    }
+
 }

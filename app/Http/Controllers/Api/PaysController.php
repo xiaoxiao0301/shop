@@ -2,11 +2,14 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Dict\RedisCacheKeys;
 use App\Dict\ResponseJsonData;
+use App\Events\OrderPaid;
 use App\Exceptions\InvalidRequestException;
 use App\Http\Requests\Api\PayRequest;
 use App\Models\Order;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Redis;
 use Log;
 
 class PaysController extends ApiBaseController
@@ -32,9 +35,9 @@ class PaysController extends ApiBaseController
      */
     public function aliPayReturn()
     {
-        Log::debug('AliPay Return', [app('aliapy')->callback()->toArray()]);
+        Log::debug('AliPay Return', [app('alipay')->callback()->toArray()]);
         try {
-            app('aliapy')->callback();
+            app('alipay')->callback();
         } catch (\Exception $exception) {
             Log::error('支付宝前端回调异常', ['msg' => $exception->getMessage()]);
             return ResponseJsonData::responseInternal();
@@ -49,7 +52,9 @@ class PaysController extends ApiBaseController
      */
     public function aliPayNotify()
     {
+        Log::debug('AliPay Notify', [app('alipay')->callback()->toArray()]);
         $data = app('alipay')->callback();
+        /** @var Order $order */
         $order = Order::query()->where('order_no', $data->out_trade_no)->first();
         if (!$order) {
             return 'fail';
@@ -62,6 +67,9 @@ class PaysController extends ApiBaseController
             'payment_method' => 'alipay', // 支付方式
             'payment_no'     => $data->trade_no, // 支付宝订单号
         ]);
+
+        $this->updateProductSoldCount($order);
+
         return app('alipay')->success();
     }
 
@@ -73,6 +81,7 @@ class PaysController extends ApiBaseController
     protected function wechatPayNotify()
     {
         $data = app('wechat')->callback();
+        /** @var Order $order */
         $order = Order::query()->where('order_no', $data->out_trade_no)->first();
         if (!$order) {
             return 'fail';
@@ -85,6 +94,23 @@ class PaysController extends ApiBaseController
             'payment_method' => 'wechat', // 支付方式
             'payment_no'     => $data->trade_no, // 支付宝订单号
         ]);
+
+        $this->updateProductSoldCount($order);
+
         return app('wechat')->success();
+    }
+
+
+    /**
+     * 订单支付后，更新订单的销量,发消息通知订单支付成功了
+     *
+     * @param Order $order
+     */
+    protected function updateProductSoldCount(Order $order)
+    {
+        // 从未支付订单中删除
+        Redis::Hdel(RedisCacheKeys::ORDER_NOT_PAY_LIST_KEY, $order->order_no);
+
+        event(new OrderPaid($order));
     }
 }

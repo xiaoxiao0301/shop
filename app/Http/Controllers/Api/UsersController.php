@@ -48,4 +48,33 @@ class UsersController extends ApiBaseController
         $coupons = $this->userService->couponLists();
         return ResponseJsonData::responseOk($coupons);
     }
+
+
+    /**
+     * 获取所有未读消息列表
+     *
+     * @return JsonResponse
+     */
+    public function notificationLists(): JsonResponse
+    {
+        $lists = $this->userService->getNotificationsLists();
+        $result = [];
+        foreach ($lists as $list) {
+            $result[] = $list->data;
+        }
+        return ResponseJsonData::responseOk($result);
+    }
+
+
+    /**
+     * 标记未读消息为已读
+     *
+     * @return JsonResponse
+     */
+    public function makeNotificationAsRead(): JsonResponse
+    {
+        $this->userService->readAllNotifications();
+        return ResponseJsonData::responseOk();
+    }
+
 }

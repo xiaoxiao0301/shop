@@ -154,6 +154,30 @@ class User extends Authenticatable implements JWTSubject
         return $this->hasMany(Order::class, 'user_id', 'user_id');
     }
 
+
+    /**
+     * 订单支付成功后发送提示支付成功
+     *
+     * @param $instance
+     */
+    public function notifyOrderPaid($instance)
+    {
+        $this->increment('notification_count');
+        $this->notify($instance);
+    }
+
+    /**
+     * 将所有未读消息标记已读
+     *
+     */
+    public function makeNotificationRead()
+    {
+        $this->notification_count = 0;
+        $this->save();
+        $this->unreadNotifications->markAsRead();
+    }
+
+
     /**
      * 参考 : https://learnku.com/docs/laravel/7.x/upgrade/7445#date-serialization
      *
