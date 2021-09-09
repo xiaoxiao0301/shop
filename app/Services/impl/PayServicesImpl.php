@@ -76,6 +76,7 @@ class PayServicesImpl implements PayServicesIf
             'amount' => [
                 'total' => $amount * 100, // 与支付宝不同，微信支付的金额单位是分。
             ],
+            'attach' => 'pay',
         ]);
         return QrCodeServicesImpl::generateOrCodePngFromUrl($result->code_url);
     }

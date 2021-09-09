@@ -22,7 +22,14 @@ use Illuminate\Support\Facades\Route;
 |
 */
 Route::get('t', function () {
-    event(new \App\Events\OrderPaid(\App\Models\Order::find(10)));
+    $orderNo = "3134437113987072";
+    $totalAmount = 200;
+
+    return app('alipay')->web([
+        'out_trade_no' => $orderNo,
+        'total_amount' => $totalAmount,
+        'subject' => '支付 Laravel Shop 的订单：'. $orderNo,
+    ]);
 });
 
 // v1 版本的api接口
@@ -47,7 +54,7 @@ Route::prefix($version)->group(function () {
     Route::get('products/{shopId?}', [ProductsController::class, 'index'])
         ->name('api.products.list');
     // 商品详情
-    Route::get('products/{product}', [ProductsController::class, 'show'])
+    Route::get('products/{product}/detail', [ProductsController::class, 'show'])
         ->name('api.product.show');
 
     // 店铺优惠券列表
@@ -128,6 +135,18 @@ Route::prefix($version)->group(function () {
         // 订单详情
         Route::get('orders/{order}', [OrdersController::class, 'show'])
             ->name('api.order.show');
+        // 确认收货
+        Route::post('orders/{order}/received', [OrdersController::class, 'received'])
+            ->name('api.order.user.received');
+        // 评价
+        Route::post('orders/{order}/review', [OrdersController::class, 'review'])
+            ->name('api.order.user.review');
+        // 订单列表-查看评价
+        Route::get('orders/{order}/review', [OrdersController::class, 'reviewDetail'])
+            ->name('api.order.review.sho');
+        // 申请退款
+        Route::post('orders/{order}/apply_refund', [OrdersController::class, 'applyRefund'])
+            ->name('api.order.apply.refund');
 
         // |------------------------ 支付  ------------------------|
         // 订单支付

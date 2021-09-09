@@ -20,6 +20,7 @@ interface UserServicesIf
     public function addFavoriteProduct($product);
     public function deleteFavoriteProduct($product);
     public function userFavoriteProductLists();
+    public function checkUserHasCollectProduct($product);
 
     // 购物车
     public function addProductToCartItem($productSkuId, $amount);

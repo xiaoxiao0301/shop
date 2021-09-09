@@ -4,6 +4,7 @@ namespace App\Services\impl;
 
 use App\Dict\ResponseJsonData;
 use App\Exceptions\InvalidRequestException;
+use App\Models\OrderItem;
 use App\Models\Product;
 use App\Services\ProductServicesIf;
 use Illuminate\Database\Query\Builder;
@@ -58,20 +59,27 @@ class ProductServicesImpl implements ProductServicesIf
      * 商品详情
      *
      * @param $product
+     * @return array
      * @throws InvalidRequestException
-     * @return JsonResponse
      */
-    public function getProductDetail($product): JsonResponse
+    public function getProductDetail($product): array
     {
         if (!$product->on_sale) {
             throw new InvalidRequestException('商品未上架');
         }
         $skus = $product->skus->toArray();
-        $result = [
-            'product' => $product,
+        $reviews = OrderItem::query()
+            ->where('product_id', $product->id)
+            ->with(['order.user', 'productSku']) // 预先加载关联关系
+            ->whereNotNull('reviewed_at') // 筛选出已评价的
+            ->orderBy('reviewed_at', 'desc')
+            ->limit(10)
+            ->get()
+            ->toArray();
+        return [
+            'product' => $product->toArray(),
             'skus' => $skus,
+            'reviews' => $reviews
         ];
-
-        return ResponseJsonData::responseOk($result);
     }
 }

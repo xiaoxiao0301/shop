@@ -4,6 +4,7 @@ namespace App\Services\impl;
 
 use App\Dict\RedisCacheKeys;
 use App\Dict\ResponseJsonData;
+use App\Events\OrderReviewed;
 use App\Exceptions\InvalidRequestException;
 use App\Models\Coupon;
 use App\Models\Order;
@@ -174,6 +175,82 @@ class OrderServicesImpl implements OrderServicesIf
         }
     }
 
+    /**
+     * 确认收货
+     *
+     * @param $order
+     * @throws InvalidRequestException
+     */
+    public function receivedOrder($order)
+    {
+        if (!$order->paid_at) {
+            throw new InvalidRequestException('订单未支付不能收货');
+        }
+        if (!$order->ship_status == Order::SHIP_STATUS_DELIVERED) {
+            throw new InvalidRequestException('订单未发货');
+        }
+        $order->update([
+            'ship_status' => Order::SHIP_STATUS_RECEIVED
+        ]);
+    }
+
+    /**
+     * 订单评价
+     *
+     * @param Order $order
+     * @param $data
+     * @return JsonResponse
+     * @throws InvalidRequestException
+     * @throws \Throwable
+     */
+    public function reviewOrder(Order $order, $data)
+    {
+        /**
+         * 1. 订单必须是已收货才能评价
+         * 2. 订单当然必须是支付完成的哈
+         */
+        if (!$order->paid_at) {
+            throw new InvalidRequestException('订单未支付，不可评价');
+        }
+
+        if ($order->reviewed) {
+            throw new InvalidRequestException('订单已评价，不可重复评价');
+        }
+
+        DB::transaction(function () use ($order, $data) {
+            foreach ($data as $review) {
+                $orderItem = $order->items()->find($review['id']);
+                $orderItem->update([
+                    'rating' => $review['rating'],
+                    'review' => $review['review'],
+                    'reviewed_at' => Carbon::now(),
+                ]);
+            }
+
+            $order->update(['reviewed' => true]);
+
+            event(new OrderReviewed($order));
+        });
+
+        return ResponseJsonData::responseOk();
+
+    }
+
+    /**
+     * 订单列表页面的评价详情
+     *
+     * @param Order $order
+     * @return array
+     * @throws InvalidRequestException
+     */
+    public function orderReviewDetail(Order $order)
+    {
+        if (!$order->reviewed) {
+            throw new InvalidRequestException('订单尚未评价');
+        }
+        return $order->items()->with('product')->get()->toArray();
+    }
+
 
     protected function handleCloseOrder($orderNo, $couponId = null)
     {
@@ -207,4 +284,31 @@ class OrderServicesImpl implements OrderServicesIf
             $this->removeUnPayOrderFromRedisLists($order);
         }
     }
+
+    /**
+     * 申请退款
+     *
+     * @param $order
+     * @param $reason
+     * @throws InvalidRequestException
+     */
+    public function applyOrderRefund($order, $reason)
+    {
+        if (!$order->paid_at) {
+            throw new InvalidRequestException('订单未支付，不能发起退款');
+        }
+
+        if ($order->refund_status != Order::REFUND_STATUS_PENDING) {
+            throw new InvalidRequestException('已发起退款，请稍后...');
+        }
+
+        $extra = $order->extra ?: [];
+        $extra['refund_reason'] = $reason;
+
+        $order->update([
+            'refund_status' => Order::REFUND_STATUS_APPLIED,
+            'extra' => $extra
+        ]);
+    }
+
 }

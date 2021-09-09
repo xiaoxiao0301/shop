@@ -6,6 +6,7 @@ use App\Dict\ResponseJsonData;
 use App\Exceptions\InvalidRequestException;
 use App\Http\Requests\Api\RefreshTokenRequest;
 use App\Http\Requests\Api\UserRequest;
+use App\Models\Order;
 use Illuminate\Http\JsonResponse;
 
 class UsersController extends ApiBaseController
@@ -76,5 +77,4 @@ class UsersController extends ApiBaseController
         $this->userService->readAllNotifications();
         return ResponseJsonData::responseOk();
     }
-
 }

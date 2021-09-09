@@ -9,6 +9,7 @@ use App\Exceptions\InvalidRequestException;
 use App\Http\Requests\Api\PayRequest;
 use App\Models\Order;
 use Carbon\Carbon;
+use Exception;
 use Illuminate\Support\Facades\Redis;
 use Log;
 
@@ -35,10 +36,10 @@ class PaysController extends ApiBaseController
      */
     public function aliPayReturn()
     {
-        Log::debug('AliPay Return', [app('alipay')->callback()->toArray()]);
+        Log::debug('AliPay Return', app('alipay')->callback()->toArray());
         try {
             app('alipay')->callback();
-        } catch (\Exception $exception) {
+        } catch (Exception $exception) {
             Log::error('支付宝前端回调异常', ['msg' => $exception->getMessage()]);
             return ResponseJsonData::responseInternal();
         }
@@ -52,7 +53,7 @@ class PaysController extends ApiBaseController
      */
     public function aliPayNotify()
     {
-        Log::debug('AliPay Notify', [app('alipay')->callback()->toArray()]);
+        Log::debug('AliPay Notify', app('alipay')->callback()->toArray());
         $data = app('alipay')->callback();
         /** @var Order $order */
         $order = Order::query()->where('order_no', $data->out_trade_no)->first();

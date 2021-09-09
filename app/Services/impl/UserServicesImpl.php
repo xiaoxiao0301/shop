@@ -25,7 +25,7 @@ class UserServicesImpl implements UserServicesIf
      *
      * @return Authenticatable|null
      */
-    public function getUserInfoFromJwt(): Authenticatable
+    public function getUserInfoFromJwt()
     {
         return auth()->user();
     }
@@ -186,6 +186,25 @@ class UserServicesImpl implements UserServicesIf
         return $user->favoriteProducts->toArray();
     }
 
+
+    /**
+     * 用户是否收藏了商品
+     *
+     * @param $product
+     * @return bool
+     */
+    public function checkUserHasCollectProduct($product)
+    {
+        /** @var User $user */
+        $user = $this->getUserInfoFromJwt();
+        if ($user) {
+            return boolval($user->favoriteProducts()->find($product->id));
+        } else {
+            return false;
+        }
+    }
+
+
     /**
      * 购物车商品列表
      *
@@ -289,7 +308,9 @@ class UserServicesImpl implements UserServicesIf
         return $user->unreadNotifications()->get();
     }
 
-
+    /**
+     * 所有未读消息设置为已读
+     */
     public function readAllNotifications()
     {
         $user = $this->getUserInfoFromJwt();

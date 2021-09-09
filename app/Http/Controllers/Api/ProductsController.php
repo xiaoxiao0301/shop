@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 
+use App\Dict\ResponseJsonData;
 use App\Exceptions\InvalidRequestException;
 use App\Http\Requests\Api\PageRequest;
 use App\Models\Product;
@@ -37,6 +38,9 @@ class ProductsController extends ApiBaseController
      */
     public function show(Product $product): JsonResponse
     {
-        return $this->productService->getProductDetail($product);
+        $result = $this->productService->getProductDetail($product);
+        $collected = $this->userService->checkUserHasCollectProduct($product);
+        $result['favorited'] = $collected;
+        return ResponseJsonData::responseOk($result);
     }
 }

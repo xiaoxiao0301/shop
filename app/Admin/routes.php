@@ -17,5 +17,8 @@ Route::group([
     $router->resource('users', 'UserController');
     $router->resource('products', 'ProductController');
     $router->resource('coupons', 'CouponController');
-
+    $router->resource('orders', 'OrderController');
+    $router->post('orders/{order}/ship', 'OrderController@ship')->name('order.ship');
+    $router->get('refund', 'ApplyRefundController@applyRefundLists')->name('apply.refund');
+    $router->post('refund', 'ApplyRefundController@handleRefund')->name('refund.handler');
 });
