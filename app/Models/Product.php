@@ -3,10 +3,12 @@
 namespace App\Models;
 
 
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Str;
 
-class Product extends BaseModel
+class Product extends Model
 {
     protected $fillable = [
         'title', 'description', 'image', 'on_sale',
@@ -35,5 +37,15 @@ class Product extends BaseModel
             return $this->attributes['image'];
         }
         return env('APP_URL') . '/storage/admin/' . $this->attributes['image'];
+    }
+
+    /**
+     * 关联商品类目
+     *
+     * @return BelongsTo
+     */
+    public function category(): BelongsTo
+    {
+        return $this->belongsTo(Category::class);
     }
 }

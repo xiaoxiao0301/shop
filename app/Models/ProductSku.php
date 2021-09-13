@@ -4,9 +4,10 @@ namespace App\Models;
 
 
 use App\Exceptions\InternalBusyException;
+use Dcat\Admin\Grid\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class ProductSku extends BaseModel
+class ProductSku extends Model
 {
     protected $fillable = [
         'title', 'description', 'price', 'stock'

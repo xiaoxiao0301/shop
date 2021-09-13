@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\AuthorizationsController;
 use App\Http\Controllers\Api\CartItemsController;
+use App\Http\Controllers\Api\CategoriesController;
 use App\Http\Controllers\Api\CouponsController;
 use App\Http\Controllers\Api\FavoriteProductsController;
 use App\Http\Controllers\Api\OrdersController;
@@ -49,6 +50,10 @@ Route::prefix($version)->group(function () {
     Route::post('refresh-token', [UsersController::class, 'refreshToken'])
         ->name('api.refresh.token');
 
+
+    // 商品分类雷彪
+    Route::get('categories', [CategoriesController::class, 'getCategoryTree'])
+        ->name('api.category.list');
 
     // 商品列表
     Route::get('products/{shopId?}', [ProductsController::class, 'index'])

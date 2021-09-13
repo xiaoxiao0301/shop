@@ -4,6 +4,7 @@ namespace App\Services\impl;
 
 use App\Dict\ResponseJsonData;
 use App\Exceptions\InvalidRequestException;
+use App\Models\Category;
 use App\Models\OrderItem;
 use App\Models\Product;
 use App\Services\ProductServicesIf;
@@ -17,14 +18,28 @@ class ProductServicesImpl implements ProductServicesIf
      *
      * @param null $search
      * @param null $order
+     * @param null $category
      * @return array
      */
-    public function getProductListsByShopId($search = null, $order = null, $shopId = null): array
+    public function getProductListsByShopId($search = null, $order = null, $category = null, $shopId = null): array
     {
         $builder = Product::query()->where('on_sale', true);
 
         if (!is_null($shopId)) {
             $builder->where('shop_id', $shopId);
+        }
+
+        if (!is_null($category)) {
+           if ($category->is_directory) {
+               // 父目录
+               $builder->whereHas('category', function ($query) use ($category) {
+                   /** @var Builder $query */
+                   $query->where('path', 'like', $category->path. $category->id . '%');
+               });
+           } else {
+               // 单个子类
+               $builder->where('category_id', $category->id);
+           }
         }
 
         // 关键字查询
@@ -51,7 +66,6 @@ class ProductServicesImpl implements ProductServicesIf
                 }
             }
         }
-
         return $builder->get()->toArray();
     }
 

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Services\impl\CategoryServicesImpl;
 use App\Services\impl\CouponServicesImpl;
 use App\Services\impl\OrderServicesImpl;
 use App\Services\impl\PageServicesImpl;
@@ -87,6 +88,11 @@ class ApiBaseController extends Controller
      */
     protected $payService;
 
+    /**
+     * @var CategoryServicesImpl
+     */
+    protected $categoryService;
+
     public function __construct()
     {
         $this->userService = new UserServicesImpl();
@@ -97,6 +103,7 @@ class ApiBaseController extends Controller
         $this->couponService = new CouponServicesImpl();
         $this->orderService = new OrderServicesImpl();
         $this->payService = new PayServicesImpl();
+        $this->categoryService = new CategoryServicesImpl();
     }
 
 

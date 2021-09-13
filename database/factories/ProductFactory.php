@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\Category;
 use App\Models\Product;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -34,6 +35,8 @@ class ProductFactory extends Factory
             "https://lccdn.phphub.org/uploads/images/201806/01/5320/pa7DrV43Mw.jpg",
         ];
 
+        $category = Category::query()->where('is_directory', false)->inRandomOrder()->first();
+
         return [
             'title' => $this->faker->word,
             'description' => $this->faker->sentence,
@@ -43,6 +46,7 @@ class ProductFactory extends Factory
             'sold_count' => 0,
             'review_count' => 0,
             'price' => 0,
+            'category_id' => $category ? $category->id : null,
         ];
     }
 }

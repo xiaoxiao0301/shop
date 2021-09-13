@@ -21,4 +21,6 @@ Route::group([
     $router->post('orders/{order}/ship', 'OrderController@ship')->name('order.ship');
     $router->get('refund', 'ApplyRefundController@applyRefundLists')->name('apply.refund');
     $router->post('refund', 'ApplyRefundController@handleRefund')->name('refund.handler');
+    $router->resource('categories', 'CategoryController');
+    $router->get('api/categories', 'CategoryController@ApiCategories');
 });

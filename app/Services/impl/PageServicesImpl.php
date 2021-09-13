@@ -12,14 +12,14 @@ use Illuminate\Http\JsonResponse;
 class PageServicesImpl implements PageServicesIf
 {
     /**
-     *
      * @param $page
      * @param $size
      * @param $data
      * @param $key
+     * @param array $other
      * @return JsonResponse
      */
-    public function customPage($page, $size, $data, $key): JsonResponse
+    public function customPage($page, $size, $data, $key, $other = []): JsonResponse
     {
         $resultDataTemple = [
             $key => [],
@@ -38,6 +38,14 @@ class PageServicesImpl implements PageServicesIf
         $resultDataTemple['current_page'] = $page;
         $resultDataTemple['total_page'] = $totalPage;
         $resultDataTemple[$key] = $result;
+        if ($other) {
+            if (array_key_exists('category_name', $other)) {
+                $resultDataTemple['category_name'] = $other['category_name'];
+            }
+            if (array_key_exists('sub_category_name', $other)) {
+                $resultDataTemple['sub_category_name'] = $other['sub_category_name'];
+            }
+        }
         return ResponseJsonData::responseOk($resultDataTemple);
     }
 

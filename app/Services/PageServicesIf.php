@@ -4,5 +4,5 @@ namespace App\Services;
 
 interface PageServicesIf
 {
-    public function customPage($page, $size, $data, $key);
+    public function customPage($page, $size, $data, $key, $other = []);
 }

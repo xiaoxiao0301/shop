@@ -22,7 +22,6 @@ class CreateProductSkusTable extends Migration
             $table->unsignedBigInteger('product_id')->comment('商品id');
             $table->foreign('product_id')->references('id')->on('products')->onDelete('cascade');
             $table->timestamps();
-            $table->softDeletes();
         });
     }
 

@@ -3,6 +3,7 @@
 namespace App\Admin\Controllers;
 
 use App\Admin\Repositories\Product;
+use App\Models\Category;
 use Dcat\Admin\Form;
 use Dcat\Admin\Grid;
 use Dcat\Admin\Show;
@@ -29,10 +30,13 @@ class ProductController extends AdminController
             $grid->setActionClass(Grid\Displayers\Actions::class);
 
             $grid->model()->orderBy('created_at', 'desc');
+            $grid->model()->with(['category']);
+
 
             $grid->column('id')->sortable();
             $grid->column('title');
 //            $grid->column('description');
+            $grid->column('category.name', '类目');
             $grid->column('image')->image('', 50, 50);
             $grid->column('on_sale', '已上架')->display(function ($value) {
                 return $value ? '是' : '否';
@@ -107,6 +111,13 @@ class ProductController extends AdminController
         return Form::make(Product::with('skus'), function (Form $form) {
             $form->display('id');
             $form->text('title')->rules('required');
+            // 添加一个类目字段，与之前类目管理类似，使用 Ajax 的方式来搜索添加
+            $form->select('category_id', '类目')->options(function ($id) {
+                $category = Category::find($id);
+                if ($category) {
+                    return [$category->id => $category->full_name];
+                }
+            })->ajax('api/categories?is_directory=0');
             $form->image('image')->autoUpload()->rules('required')->removable(false)->uniqueName();
             $form->editor('description')->rules('required');
             $form->switch('on_sale', '上架')->default(false);
