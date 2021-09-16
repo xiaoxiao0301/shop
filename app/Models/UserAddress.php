@@ -14,6 +14,8 @@ class UserAddress extends BaseModel
     // 表示 last_used_at 字段是一个时间日期类型,
     protected $dates = ['last_used_at'];
 
+    protected $appends = ['full_address'];
+
     /**
      * 一对多反向,关联用户
      *

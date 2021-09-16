@@ -23,4 +23,5 @@ Route::group([
     $router->post('refund', 'ApplyRefundController@handleRefund')->name('refund.handler');
     $router->resource('categories', 'CategoryController');
     $router->get('api/categories', 'CategoryController@ApiCategories');
+    $router->resource('crowdfunding_products', 'CrowdfundingProductController');
 });

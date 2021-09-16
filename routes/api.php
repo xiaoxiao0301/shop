@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\AuthorizationsController;
 use App\Http\Controllers\Api\CartItemsController;
 use App\Http\Controllers\Api\CategoriesController;
 use App\Http\Controllers\Api\CouponsController;
+use App\Http\Controllers\Api\CrowdFundingOrderController;
 use App\Http\Controllers\Api\FavoriteProductsController;
 use App\Http\Controllers\Api\OrdersController;
 use App\Http\Controllers\Api\PaysController;
@@ -23,14 +24,17 @@ use Illuminate\Support\Facades\Route;
 |
 */
 Route::get('t', function () {
-    $orderNo = "3134437113987072";
-    $totalAmount = 200;
+   /* $orderNo = "5591324757590016";
+    $totalAmount = 100;
 
     return app('alipay')->web([
         'out_trade_no' => $orderNo,
         'total_amount' => $totalAmount,
         'subject' => '支付 Laravel Shop 的订单：'. $orderNo,
-    ]);
+    ]);*/
+    /** @var \App\Models\Order $order */
+    $order = \App\Models\Order::query()->where('order_no', '5591324757590016')->first();
+    event(new \App\Events\OrderPaid($order));
 });
 
 // v1 版本的api接口
@@ -161,6 +165,9 @@ Route::prefix($version)->group(function () {
         Route::get('alipay/return', [PaysController::class, 'aliPayReturn'])
             ->name('api.alipay.return');
 
+        // |------------------------ 众筹  ------------------------|
+        Route::post('crowdfunding_order', [CrowdFundingOrderController::class, 'store'])
+            ->name('api.crowdfunding.order.create');
 
     });
 

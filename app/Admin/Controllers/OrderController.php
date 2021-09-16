@@ -6,6 +6,7 @@ use App\Admin\Actions\Grid\AgreeUserApplyOrderRefund;
 use App\Admin\Actions\Grid\DisAgreeUserApplyOrderRefund;
 use App\Admin\Repositories\Order;
 use App\Exceptions\InvalidRequestException;
+use App\Models\CrowdfundingProduct;
 use Dcat\Admin\Form;
 use Dcat\Admin\Grid;
 use Dcat\Admin\Layout\Content;
@@ -194,6 +195,10 @@ class OrderController extends AdminController
 
         if (!$order->ship_status == \App\Models\Order::SHIP_STATUS_PENDING) {
             throw new InvalidRequestException('订单已发货');
+        }
+        if ($order->type === \App\Models\Order::TYPE_CROWDFUNDING &&
+            $order->items[0]->product->crowdfunding_status !== CrowdfundingProduct::STATUS_SUCCESS) {
+            throw new InvalidRequestException('众筹订单只能在众筹成功之后才能发货');
         }
 
         $data = $request->validate([

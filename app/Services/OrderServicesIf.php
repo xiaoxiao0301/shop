@@ -3,6 +3,9 @@
 namespace App\Services;
 
 use App\Models\Order;
+use App\Models\ProductSku;
+use App\Models\User;
+use App\Models\UserAddress;
 
 interface OrderServicesIf
 {
@@ -13,4 +16,8 @@ interface OrderServicesIf
     public function reviewOrder(Order $order, $data);
     public function orderReviewDetail(Order $order);
     public function applyOrderRefund($order, $reason);
+
+    public function createCrowdfundingOrder(User $user, UserAddress $address, ProductSku $productSku, $amount);
+
+    public function refundOrder(Order $order);
 }

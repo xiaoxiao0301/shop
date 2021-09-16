@@ -7,72 +7,21 @@ use App\Models\Category;
 use Dcat\Admin\Form;
 use Dcat\Admin\Grid;
 use Dcat\Admin\Show;
-use Dcat\Admin\Http\Controllers\AdminController;
 
-class ProductController extends AdminController
+class ProductController extends CommonProductsController
 {
-    protected $title = "商品管理";
+
+    public function getProductType()
+    {
+        return \App\Models\Product::TYPE_NORMAL;
+    }
+
+    protected $title = "普通商品管理";
 
     protected $description = [
-        'create' => '创建商品',
-        'index' => '商品列表',
+        'create' => '创建普通商品',
+        'index' => '普通商品列表',
     ];
-
-    /**
-     * Make a grid builder.
-     *
-     * @return Grid
-     */
-    protected function grid()
-    {
-        return Grid::make(new Product(), function (Grid $grid) {
-            // 设置操作为图标展开式
-            $grid->setActionClass(Grid\Displayers\Actions::class);
-
-            $grid->model()->orderBy('created_at', 'desc');
-            $grid->model()->with(['category']);
-
-
-            $grid->column('id')->sortable();
-            $grid->column('title');
-//            $grid->column('description');
-            $grid->column('category.name', '类目');
-            $grid->column('image')->image('', 50, 50);
-            $grid->column('on_sale', '已上架')->display(function ($value) {
-                return $value ? '是' : '否';
-            });
-            $grid->column('rating');
-            $grid->column('sold_count');
-            $grid->column('review_count');
-            $grid->column('price');
-//            $grid->column('created_at');
-//            $grid->column('updated_at')->sortable();
-
-            $grid->filter(function (Grid\Filter $filter) {
-                $filter->equal('id');
-
-            });
-
-            // 开启弹窗创建表单
-            $grid->enableDialogCreate();
-            // 设置弹窗的宽，高
-            $grid->setDialogFormDimensions('65%', '75%');
-
-            // 禁用过滤器按钮
-            $grid->disableFilterButton();
-
-            // 禁用 行选择器
-            $grid->disableRowSelector();
-
-            // 禁用删除按钮
-            $grid->disableDeleteButton();
-
-            // 禁用详情按钮
-            $grid->disableViewButton();
-
-
-        });
-    }
 
     /**
      * Make a show builder.
@@ -101,56 +50,23 @@ class ProductController extends AdminController
         });
     }
 
-    /**
-     * Make a form builder.
-     *
-     * @return Form
-     */
-    protected function form()
+    protected function customGrid(Grid $grid)
     {
-        return Form::make(Product::with('skus'), function (Form $form) {
-            $form->display('id');
-            $form->text('title')->rules('required');
-            // 添加一个类目字段，与之前类目管理类似，使用 Ajax 的方式来搜索添加
-            $form->select('category_id', '类目')->options(function ($id) {
-                $category = Category::find($id);
-                if ($category) {
-                    return [$category->id => $category->full_name];
-                }
-            })->ajax('api/categories?is_directory=0');
-            $form->image('image')->autoUpload()->rules('required')->removable(false)->uniqueName();
-            $form->editor('description')->rules('required');
-            $form->switch('on_sale', '上架')->default(false);
-
-            // 第一个参数必须和主模型中定义此关联关系的方法同名
-            $form->hasMany('skus', 'SKU列表', function (Form\NestedForm $form) {
-                $form->text('title', 'SKU名称')->rules('required');
-                $form->text('description', 'SKU描述')->rules('required');
-                $form->text('price', '单价')->rules('required|numeric|min:0.01');
-                $form->text('stock', '库存')->rules('required|integer|min:0');
-            });
-
-            // 修改模型中的数据需要配合隐藏表单使用
-            $form->hidden('price');
-            $form->saving(function (Form $form) {
-                $form->price = collect($form->input('skus'))->where(Form::REMOVE_FLAG_NAME, 0)->min('price') ?: 0;
-            });
-
-            // 禁用编辑页面删除按钮
-            $form->disableDeleteButton();
-
-            // 去掉底部按钮
-            $form->footer(function ($footer) {
-                // 去掉`查看`checkbox
-                $footer->disableViewCheck();
-
-                // 去掉`继续编辑`checkbox
-                $footer->disableEditingCheck();
-
-                // 去掉`继续创建`checkbox
-                $footer->disableCreatingCheck();
-            });
-
+        $grid->model()->with(['category']);
+        $grid->column('id')->sortable();
+        $grid->column('title', '商品名称');
+        $grid->column('category.name', '类目');
+        $grid->column('on_sale', '已上架')->display(function ($value) {
+            return $value ? '是' : '否';
         });
+        $grid->column('price', '价格');
+        $grid->column('rating', '评分');
+        $grid->column('sold_count', '销量');
+        $grid->column('review_count', '评论数');
+    }
+
+    protected function customForm(Form $form)
+    {
+        // 普通商品没有额外的字段
     }
 }

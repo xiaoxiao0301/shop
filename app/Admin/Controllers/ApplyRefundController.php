@@ -7,6 +7,7 @@ use App\Admin\Actions\Grid\DisAgreeUserApplyOrderRefund;
 use App\Admin\Repositories\ApplyRefundRepositories;
 use App\Exceptions\InternalBusyException;
 use App\Models\Order;
+use App\Services\impl\OrderServicesImpl;
 use Dcat\Admin\Grid;
 use Dcat\Admin\Http\Controllers\AdminController;
 use Dcat\Admin\Http\JsonResponse;
@@ -78,7 +79,7 @@ class ApplyRefundController extends AdminController
      * @param Request $request
      * @return JsonResponse
      */
-    public function handleRefund(Request $request)
+    public function handleRefund(Request $request, OrderServicesImpl $orderService)
     {
         $data = $request->validate([
             'agree' => ['required', 'boolean'],
@@ -88,7 +89,6 @@ class ApplyRefundController extends AdminController
         $agree = $data['agree'];
         $orderId = $data['order_id'];
         $orderInfo = Order::find($orderId);
-
         if (!$agree) {
             // 拒绝退款
             // 将拒绝退款理由放到订单的 extra 字段中
@@ -97,56 +97,10 @@ class ApplyRefundController extends AdminController
             $orderInfo->refund_status = Order::REFUND_STATUS_PENDING;
             $orderInfo->extra = $extra;
             $orderInfo->save();
-            return JsonResponse::make()->success('成功');
         } else {
-            return $this->agreeApplyRefund($orderInfo);
+            $orderService->refundOrder($orderInfo);
         }
-    }
-
-    public function agreeApplyRefund(Order $order)
-    {
-        Log::debug('正在进行退款的订单信息:', $order->toArray());
-        switch ($order->payment_method) {
-            case 'wechat':
-                $refundNo = Order::generateOrderRefundStringNumber();
-//                $refundData = [
-//                    'out_trade_no' => $order->order_no,
-//                    'out_refund_no' => $refundNo,
-//                    'amount' => [
-//                        'refund' => $order->total_amount * 100,
-//                        'total' => $order->total_amount * 100,
-//                        'currency' => 'CNY',
-//                    ],
-//                ];
-//                // 微信退款是异步的哈
-//                app('wechat')->refund($refundData);
-                $order->refund_no = $refundNo;
-                $order->refund_status = Order::REFUND_STATUS_PROCESSING;
-                $order->save();
-                return JsonResponse::make()->success('退款成功');
-            case 'alipay':
-                $result = app('alipay')->refund([
-                    'out_trade_no' => $order->order_no,
-                    'refund_amount' => $order->total_amount,
-                ]);
-                Log::debug('支付宝退款回调参数:', $result->toArray());
-                if ($result->sub_code) {
-                    // 退款失败
-                    $extra = $order->extra;
-                    $extra['refund_failed_code'] = $result->sub_code;
-                    $order->refund_status = Order::REFUND_STATUS_FAILED;
-                    $order->save();
-                    return JsonResponse::make()->error('退款失败，请联系技术人员处理');
-                } else {
-                    // 退款成功
-                    $order->refund_no = $result->trade_no;
-                    $order->refund_status = Order::REFUND_STATUS_SUCCESS;
-                    $order->save();
-                    return JsonResponse::make()->success('退款成功');
-                }
-            default:
-                return JsonResponse::make()->error('服务器繁忙，请稍后');
-        }
+        return JsonResponse::make()->success('成功');
     }
 
 }

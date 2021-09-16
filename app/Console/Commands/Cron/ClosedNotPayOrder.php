@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Console\Commands;
+namespace App\Console\Commands\Cron;
 
 use App\Services\impl\OrderServicesImpl;
 use Illuminate\Console\Command;
@@ -12,7 +12,7 @@ class ClosedNotPayOrder extends Command
      *
      * @var string
      */
-    protected $signature = 'close:order';
+    protected $signature = 'cron:close-order';
 
     /**
      * The console command description.

@@ -17,6 +17,8 @@ use Carbon\Carbon;
 use DB;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Redis;
+use Log;
+use Throwable;
 
 class OrderServicesImpl implements OrderServicesIf
 {
@@ -55,6 +57,7 @@ class OrderServicesImpl implements OrderServicesIf
                 ],
                 'remark' => $orderData['remark'],
                 'total_amount' => 0,
+                'type' => Order::TYPE_NORMAL,
             ]);
             $order->user()->associate($user);
             $order->save();
@@ -110,7 +113,61 @@ class OrderServicesImpl implements OrderServicesIf
             return ResponseJsonData::responseUnProcessAble($exception->getMessage());
         }
         $couponId = $coupon ? $coupon->id : null;
-        $this->addUnPayOrderToRedisList($order, $couponId);
+        $this->addUnPayOrderToRedisList($order, RedisCacheKeys::ORDER_PAY_LIMIT_SEC, $couponId);
+        return ResponseJsonData::responseOk($order->toArray());
+    }
+
+
+    /**
+     * 创建众筹订单
+     *
+     * @param User $user
+     * @param UserAddress $address
+     * @param ProductSku $productSku
+     * @param $amount
+     * @return JsonResponse
+     * @throws Throwable
+     */
+    public function createCrowdfundingOrder(User $user, UserAddress $address, ProductSku $productSku, $amount)
+    {
+        DB::beginTransaction();
+        try {
+            // 更新地址最后使用时间
+            $address->update(['last_used_at' => Carbon::now()]);
+            $order = Order::create([
+                'address' => [
+                    'address' => $address->full_address,
+                    'zip' => $address->zip,
+                    'contact_name' => $address->contact_name,
+                    'contact_phone' => $address->contact_phone,
+                ],
+                'remark' => '',
+                'total_amount' => $productSku->price * $amount,
+                'type' => Order::TYPE_CROWDFUNDING,
+            ]);
+//             订单关联用户
+            $order->user()->associate($user);
+            $order->save();
+            // 订单详情 OrderItem
+            $orderItem = $order->items()->make([
+                'amount' => $amount,
+                'price' => $productSku->price,
+            ]);
+            $orderItem->product()->associate($productSku->product_id);
+            $orderItem->productSku()->associate($productSku);
+            $orderItem->save();
+            // 减库存
+            if ($productSku->decreaseStock($amount) <= 0) {
+                throw new InvalidRequestException('商品库存不足');
+            }
+            DB::commit();
+        } catch (InvalidRequestException $exception) {
+            DB::rollBack();
+            return ResponseJsonData::responseUnProcessAble($exception->getMessage());
+        }
+        // 将众筹订单也放入队列中去处理
+        $orderLimitAtSec = $productSku->product->crowdfunding->end_time->getTimestamp() - time();
+        $this->addUnPayOrderToRedisList($order, $orderLimitAtSec);
         return ResponseJsonData::responseOk($order->toArray());
     }
 
@@ -134,45 +191,6 @@ class OrderServicesImpl implements OrderServicesIf
     public function orderDetail($order): JsonResponse
     {
         return ResponseJsonData::responseOk($order->load(['items.product', 'items.productSku'])->toArray());
-    }
-
-    /**
-     * 将未支付订单添加到未支付订单列表中，定时任务去获取列表数据然后关闭订单
-     *
-     * @param Order $order
-     */
-    protected function addUnPayOrderToRedisList(Order $order, $couponId = null)
-    {
-        $value = json_encode([
-            'created_at' => $order->created_at->toDateTimeString(),
-            'coupon_id' => $couponId
-        ]);
-        Redis::Hset(RedisCacheKeys::ORDER_NOT_PAY_LIST_KEY,  $order->order_no, $value);
-    }
-
-    /**
-     * 从定时任务列表删除已支付订单编号
-     *
-     * @param Order $order
-     */
-    protected function removeUnPayOrderFromRedisLists(Order $order)
-    {
-        Redis::Hdel(RedisCacheKeys::ORDER_NOT_PAY_LIST_KEY, $order->order_no);
-    }
-
-    /**
-     * 关闭未支付订单
-     */
-    public function closeNotPayOrder()
-    {
-        $orderLists = Redis::HgetAll(RedisCacheKeys::ORDER_NOT_PAY_LIST_KEY);
-        foreach ($orderLists as $orderNo => $item) {
-            $item = json_decode($item, true);
-            // 超时未支付的订单需要关闭，这里默认是30分钟未支付
-            if (Carbon::parse($item['created_at'])->addSeconds(RedisCacheKeys::ORDER_PAY_LIMIT_SEC)->lt(Carbon::now())) {
-                $this->handleCloseOrder($orderNo, $item['coupon_id']);
-            }
-        }
     }
 
     /**
@@ -201,7 +219,7 @@ class OrderServicesImpl implements OrderServicesIf
      * @param $data
      * @return JsonResponse
      * @throws InvalidRequestException
-     * @throws \Throwable
+     * @throws Throwable
      */
     public function reviewOrder(Order $order, $data)
     {
@@ -251,7 +269,126 @@ class OrderServicesImpl implements OrderServicesIf
         return $order->items()->with('product')->get()->toArray();
     }
 
+    /**
+     * 申请退款
+     *
+     * @param $order
+     * @param $reason
+     * @throws InvalidRequestException
+     */
+    public function applyOrderRefund($order, $reason)
+    {
+        if (!$order->paid_at) {
+            throw new InvalidRequestException('订单未支付，不能发起退款');
+        }
 
+        if ($order->type === Order::TYPE_CROWDFUNDING) {
+            throw new InvalidRequestException('众筹订单不支持退款');
+        }
+
+        if ($order->refund_status != Order::REFUND_STATUS_PENDING) {
+            throw new InvalidRequestException('已发起退款，请稍后...');
+        }
+
+        $extra = $order->extra ?: [];
+        $extra['refund_reason'] = $reason;
+
+        $order->update([
+            'refund_status' => Order::REFUND_STATUS_APPLIED,
+            'extra' => $extra
+        ]);
+    }
+
+    /**
+     * 退款，支付宝/微信
+     * @param Order $order
+     */
+    public function refundOrder(Order $order)
+    {
+        Log::debug('正在进行退款的订单信息:', $order->toArray());
+        switch ($order->payment_method) {
+            case 'wechat':
+                $refundNo = Order::generateOrderRefundStringNumber();
+                $refundData = [
+                    'out_trade_no' => $order->order_no,
+                    'out_refund_no' => $refundNo,
+                    'amount' => [
+                        'refund' => $order->total_amount * 100,
+                        'total' => $order->total_amount * 100,
+                        'currency' => 'CNY',
+                    ],
+                ];
+                // 微信退款是异步的哈, v3版本待测试
+                app('wechat')->refund($refundData);
+                $order->refund_no = $refundNo;
+                $order->refund_status = Order::REFUND_STATUS_PROCESSING;
+                $order->save();
+                break;
+            case 'alipay':
+                $result = app('alipay')->refund([
+                    'out_trade_no' => $order->order_no,
+                    'refund_amount' => $order->total_amount,
+                ]);
+                Log::debug('支付宝退款回调参数:', $result->toArray());
+                if ($result->sub_code) {
+                    // 退款失败
+                    $extra = $order->extra;
+                    $extra['refund_failed_code'] = $result->sub_code;
+                    $order->refund_status = Order::REFUND_STATUS_FAILED;
+                    $order->extra = $extra;
+                    $order->save();
+                } else {
+                    // 退款成功
+                    $order->refund_no = $result->trade_no;
+                    $order->refund_status = Order::REFUND_STATUS_SUCCESS;
+                    $order->save();
+                }
+                break;
+            default:
+                throw new InvalidRequestException('未知订单支付方式:'. $order->payment_method);
+        }
+    }
+
+
+    /**
+     * 将未支付订单添加到未支付订单列表中，定时任务去获取列表数据然后关闭订单
+     *
+     * @param Order $order
+     * @param $orderLimitAtSec
+     * @param null $couponId
+     */
+    protected function addUnPayOrderToRedisList(Order $order, $orderLimitAtSec, $couponId = null)
+    {
+        $value = json_encode([
+            'order_created_at' => $order->created_at->toDateTimeString(),
+            'limit_end_time_sec' => $orderLimitAtSec,
+            'coupon_id' => $couponId,
+        ]);
+        Redis::Hset(RedisCacheKeys::ORDER_NOT_PAY_LIST_KEY,  $order->order_no, $value);
+    }
+
+    /**
+     * 关闭未支付订单
+     */
+    public function closeNotPayOrder()
+    {
+        $orderLists = Redis::HgetAll(RedisCacheKeys::ORDER_NOT_PAY_LIST_KEY);
+        foreach ($orderLists as $orderNo => $item) {
+            $item = json_decode($item, true);
+            // 超时未支付的订单需要关闭，这里默认是30分钟未支付
+            if (Carbon::parse($item['order_created_at'])->addSeconds($item['limit_end_time_sec'])->lt(Carbon::now())) {
+                $this->handleCloseOrder($orderNo, $item['coupon_id']);
+            }
+        }
+    }
+
+    /**
+     * 处理关闭订单逻辑
+     *
+     * @param $orderNo
+     * @param null $couponId
+     * @throws Throwable
+     */
     protected function handleCloseOrder($orderNo, $couponId = null)
     {
         /** @var Order $order */
@@ -286,29 +423,13 @@ class OrderServicesImpl implements OrderServicesIf
     }
 
     /**
-     * 申请退款
+     * 从定时任务列表删除已支付订单编号
      *
-     * @param $order
-     * @param $reason
-     * @throws InvalidRequestException
+     * @param Order $order
      */
-    public function applyOrderRefund($order, $reason)
+    protected function removeUnPayOrderFromRedisLists(Order $order)
     {
-        if (!$order->paid_at) {
-            throw new InvalidRequestException('订单未支付，不能发起退款');
-        }
-
-        if ($order->refund_status != Order::REFUND_STATUS_PENDING) {
-            throw new InvalidRequestException('已发起退款，请稍后...');
-        }
-
-        $extra = $order->extra ?: [];
-        $extra['refund_reason'] = $reason;
-
-        $order->update([
-            'refund_status' => Order::REFUND_STATUS_APPLIED,
-            'extra' => $extra
-        ]);
+        Redis::Hdel(RedisCacheKeys::ORDER_NOT_PAY_LIST_KEY, $order->order_no);
     }
 
 }

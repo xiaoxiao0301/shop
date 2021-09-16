@@ -4,7 +4,7 @@ namespace App\Models;
 
 
 use App\Exceptions\InternalBusyException;
-use Dcat\Admin\Grid\Model;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class ProductSku extends Model
@@ -20,7 +20,7 @@ class ProductSku extends Model
      */
     public function product(): BelongsTo
     {
-        return $this->belongsTo(Product::class);
+        return $this->belongsTo(Product::class, 'product_id');
     }
 
 
