@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\CategoriesController;
 use App\Http\Controllers\Api\CouponsController;
 use App\Http\Controllers\Api\CrowdFundingOrderController;
 use App\Http\Controllers\Api\FavoriteProductsController;
+use App\Http\Controllers\Api\InstallmentsController;
 use App\Http\Controllers\Api\OrdersController;
 use App\Http\Controllers\Api\PaysController;
 use App\Http\Controllers\Api\ProductsController;
@@ -24,17 +25,21 @@ use Illuminate\Support\Facades\Route;
 |
 */
 Route::get('t', function () {
-   /* $orderNo = "5591324757590016";
-    $totalAmount = 100;
-
-    return app('alipay')->web([
-        'out_trade_no' => $orderNo,
-        'total_amount' => $totalAmount,
-        'subject' => '支付 Laravel Shop 的订单：'. $orderNo,
-    ]);*/
-    /** @var \App\Models\Order $order */
-    $order = \App\Models\Order::query()->where('order_no', '5591324757590016')->first();
-    event(new \App\Events\OrderPaid($order));
+//    $orderNo = "5591324757590016";
+//    $totalAmount = 100;
+//
+//    return app('alipay')->web([
+//        'out_trade_no' => $orderNo,
+//        'total_amount' => $totalAmount,
+//        'subject' => '支付 Laravel Shop 的订单：'. $orderNo,
+//        'notify_url' => frp_url('api.alipay.notify'),
+//        'return_url' => frp_url('api.alipay.return')
+//    ]);
+//    /** @var \App\Models\Order $order */
+//    $order = \App\Models\Order::query()->where('order_no', '5591324757590016')->first();
+//    event(new \App\Events\OrderPaid($order));
+//    return \Brick\Math\BigDecimal::of(10)->multipliedBy(0.0001)->multipliedBy(10000);
+//    return \Brick\Math\BigDecimal::of(10)->multipliedBy(10000)->multipliedBy(0.0001);
 });
 
 // v1 版本的api接口
@@ -55,7 +60,7 @@ Route::prefix($version)->group(function () {
         ->name('api.refresh.token');
 
 
-    // 商品分类雷彪
+    // 商品分类列表
     Route::get('categories', [CategoriesController::class, 'getCategoryTree'])
         ->name('api.category.list');
 
@@ -71,11 +76,17 @@ Route::prefix($version)->group(function () {
         ->name('api.shop.coupons');
 
     // 支付宝服务器端回调
-    Route::post('alipay/notify', [PaysController::class, 'aliPayNotify'])
+    Route::post('alipay/notify', [OrdersController::class, 'aliPayNotify'])
         ->name('api.alipay.notify');
     // 微信支付回调
-    Route::post('wechat/notify', [PaysController::class, 'wechatPayNotify'])
+    Route::post('wechat/notify', [OrdersController::class, 'wechatPayNotify'])
         ->name('api.wechat.notify');
+    // 支付宝分期支付回调
+    Route::post('installment/alipay/notify', [InstallmentsController::class, 'installmentAliPayNotify'])
+        ->name('installment.alipay.notify');
+    // 微信分期支付回调
+    Route::post('installment/wechat/notify', [InstallmentsController::class, 'installmentWechatNotify'])
+        ->name('installment.wechat.notify');
 
     // |----------------------------------------  需要登陆认证的接口   ------------------------|
     Route::middleware('auth')->group(function () {
@@ -157,17 +168,36 @@ Route::prefix($version)->group(function () {
         Route::post('orders/{order}/apply_refund', [OrdersController::class, 'applyRefund'])
             ->name('api.order.apply.refund');
 
+
         // |------------------------ 支付  ------------------------|
         // 订单支付
         Route::post('order/pay', [PaysController::class, 'pay'])
             ->name('api.order.pay');
         // 支付宝前端回调
-        Route::get('alipay/return', [PaysController::class, 'aliPayReturn'])
+        Route::get('alipay/return', [OrdersController::class, 'aliPayReturn'])
             ->name('api.alipay.return');
+        // 分期付款订单
+        Route::post('payment/{order}/installment', [PaysController::class, 'payByInstallment'])
+            ->name('api.payment.installment');
 
         // |------------------------ 众筹  ------------------------|
         Route::post('crowdfunding_order', [CrowdFundingOrderController::class, 'store'])
             ->name('api.crowdfunding.order.create');
+
+
+        // |------------------------ 分期付款  ------------------------|
+        //分期付款列表
+        Route::get('installments', [InstallmentsController::class, 'index'])
+            ->name('api.installments.list');
+        // 分期付款详情
+        Route::get('installments/{installment}', [InstallmentsController::class, 'show'])
+            ->name('api.installment.detail');
+        // 支付宝支付
+        Route::post('installments/{installment}/alipay', [PaysController::class, 'installmentAliPay'])
+            ->name('api.installment.pay.alipay');
+        // 微信支付
+        Route::post('installments/{installment}/wechat', [PaysController::class, 'installmentWechatPay'])
+            ->name('api.installment.pay.wechat');
 
     });
 

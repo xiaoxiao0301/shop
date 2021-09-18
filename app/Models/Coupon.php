@@ -5,10 +5,13 @@ namespace App\Models;
 
 use App\Exceptions\InvalidRequestException;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Str;
 
 class Coupon extends BaseModel
 {
+    use SoftDeletes;
+
     const TYPE_FIXED = 'fixed';
     const TYPE_PERCENT = 'percent';
 

@@ -9,6 +9,7 @@
     "license": "MIT",
     "require": {
         "php": "^7.3",
+        "brick/math": "^0.9.3",
         "darkaonline/l5-swagger": "^8.0",
         "dcat/laravel-admin": "2.*",
         "endroid/qr-code": "^4.3",
@@ -48,7 +49,10 @@
             "App\\": "app/",
             "Database\\Factories\\": "database/factories/",
             "Database\\Seeders\\": "database/seeders/"
-        }
+        },
+        "files": [
+            "app/Dict/helpers.php"
+        ]
     },
     "autoload-dev": {
         "psr-4": {

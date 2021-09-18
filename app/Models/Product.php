@@ -3,13 +3,12 @@
 namespace App\Models;
 
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Str;
 
-class Product extends Model
+class Product extends BaseModel
 {
     const TYPE_NORMAL = 'normal';
     const TYPE_CROWDFUNDING = 'crowdfunding';

@@ -233,4 +233,6 @@ return [
 
     ],
 
+    'frp_url' => env('FRP_URL'),
+
 ];

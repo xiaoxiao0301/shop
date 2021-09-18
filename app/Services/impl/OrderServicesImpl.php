@@ -4,8 +4,10 @@ namespace App\Services\impl;
 
 use App\Dict\RedisCacheKeys;
 use App\Dict\ResponseJsonData;
+use App\Events\OrderPaid;
 use App\Events\OrderReviewed;
 use App\Exceptions\InvalidRequestException;
+use App\Jobs\RefundInstallmentOrder;
 use App\Models\Coupon;
 use App\Models\Order;
 use App\Models\OrderItem;
@@ -15,6 +17,7 @@ use App\Models\UserAddress;
 use App\Services\OrderServicesIf;
 use Carbon\Carbon;
 use DB;
+use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Redis;
 use Log;
@@ -194,6 +197,78 @@ class OrderServicesImpl implements OrderServicesIf
     }
 
     /**
+     * 支付宝网站前端回调
+     *
+     * @return JsonResponse
+     */
+    public function aliPayReturn()
+    {
+        Log::debug('AliPay Return', app('alipay')->callback()->toArray());
+        try {
+            app('alipay')->callback();
+        } catch (Exception $exception) {
+            Log::error('支付宝前端回调异常', ['msg' => $exception->getMessage()]);
+            return ResponseJsonData::responseInternal();
+        }
+        return ResponseJsonData::responseOk();
+    }
+
+    /**
+     * 普通订单支付宝回调
+     *
+     * @return string
+     */
+    public function aliPayNotify()
+    {
+        Log::debug('AliPay Notify', app('alipay')->callback()->toArray());
+        $data = app('alipay')->callback();
+        /** @var Order $order */
+        $order = Order::query()->where('order_no', $data->out_trade_no)->first();
+        if (!$order) {
+            return 'fail';
+        }
+        if ($order->paid_at) {
+            return app('alipay')->success();
+        }
+        $order->update([
+            'paid_at'        => Carbon::now(), // 支付时间
+            'payment_method' => 'alipay', // 支付方式
+            'payment_no'     => $data->trade_no, // 支付宝订单号
+        ]);
+
+        $this->updateProductSoldCount($order);
+
+        return app('alipay')->success();
+    }
+
+    /**
+     * 普通订单微信支付回调
+     *
+     * @return string
+     */
+    public function wechatPayNotify()
+    {
+        $data = app('wechat')->callback();
+        /** @var Order $order */
+        $order = Order::query()->where('order_no', $data->out_trade_no)->first();
+        if (!$order) {
+            return 'fail';
+        }
+        if ($order->paid_at) {
+            return app('wechat')->success();
+        }
+        $order->update([
+            'paid_at'        => Carbon::now(), // 支付时间
+            'payment_method' => 'wechat', // 支付方式
+            'payment_no'     => $data->transaction_id, // 微信订单号
+        ]);
+
+        $this->updateProductSoldCount($order);
+
+        return app('wechat')->success();
+    }
+
+    /**
      * 确认收货
      *
      * @param $order
@@ -344,6 +419,13 @@ class OrderServicesImpl implements OrderServicesIf
                     $order->save();
                 }
                 break;
+            case 'installment':
+                $order->update([
+                    'refund_no' => Order::generateOrderRefundStringNumber(), // 生成退款订单号
+                    'refund_status' => Order::REFUND_STATUS_PROCESSING, // 将退款状态改为退款中
+                ]);
+                dispatch(new RefundInstallmentOrder($order));
+                break;
             default:
                 throw new InvalidRequestException('未知订单支付方式:'. $order->payment_method);
         }
@@ -430,6 +512,18 @@ class OrderServicesImpl implements OrderServicesIf
     protected function removeUnPayOrderFromRedisLists(Order $order)
     {
         Redis::Hdel(RedisCacheKeys::ORDER_NOT_PAY_LIST_KEY, $order->order_no);
+    }
+
+    /**
+     * 订单支付后，更新订单的销量,发消息通知订单支付成功了
+     *
+     * @param Order $order
+     */
+    protected function updateProductSoldCount(Order $order)
+    {
+        // 从未支付订单中删除
+        Redis::Hdel(RedisCacheKeys::ORDER_NOT_PAY_LIST_KEY, $order->order_no);
+        event(new OrderPaid($order));
     }
 
 }

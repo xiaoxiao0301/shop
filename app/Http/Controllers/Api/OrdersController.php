@@ -68,6 +68,38 @@ class OrdersController extends ApiBaseController
 
     }
 
+
+    /**
+     * 支付宝前端回调，web方式发起支付才会有
+     *
+     * @return JsonResponse
+     */
+    public function aliPayReturn(): JsonResponse
+    {
+       return $this->orderService->aliPayReturn();
+    }
+
+    /**
+     * 支付宝服务器端回调
+     *
+     * @return string
+     */
+    public function aliPayNotify(): string
+    {
+        return $this->orderService->aliPayNotify();
+    }
+
+    /**
+     * 微信支付回调
+     *
+     * @return string
+     */
+    public function wechatPayNotify(): string
+    {
+        return $this->orderService->wechatPayNotify();
+    }
+
+
     /**
      * 确认收货
      *

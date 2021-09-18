@@ -27,7 +27,6 @@ class CreateOrderItemsTable extends Migration
             $table->text('review')->nullable()->comment('用户评价');
             $table->dateTime('reviewed_at')->nullable()->comment('评价时间');
             $table->timestamps();
-            $table->softDeletes();
         });
     }
 

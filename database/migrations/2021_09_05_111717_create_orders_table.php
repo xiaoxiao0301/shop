@@ -33,7 +33,6 @@ class CreateOrdersTable extends Migration
             $table->text('ship_data')->nullable()->comment('物流数据');
             $table->text('extra')->nullable()->comment('其他额外的数据');
             $table->timestamps();
-            $table->softDeletes();
         });
     }
 

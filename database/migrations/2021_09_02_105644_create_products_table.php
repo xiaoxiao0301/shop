@@ -25,7 +25,6 @@ class CreateProductsTable extends Migration
             $table->decimal('price', 10, 2)->comment('SKU最低价格');
             $table->unsignedBigInteger('shop_id')->nullable()->comment('店铺编号');
             $table->timestamps();
-            $table->softDeletes();
         });
     }
 

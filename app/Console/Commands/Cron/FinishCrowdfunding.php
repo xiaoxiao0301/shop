@@ -56,6 +56,8 @@ class FinishCrowdfunding extends Command
                     $this->crowdfundingSucceed($crowdfundingProduct);
                 }
             });
+        $this->info('结束众筹成功');
+        return 0;
     }
 
     /**

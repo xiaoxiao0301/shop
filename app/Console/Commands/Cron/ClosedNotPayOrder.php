@@ -43,6 +43,7 @@ class ClosedNotPayOrder extends Command
     {
         // 关闭未支付订单，放到队列里面执行
         $this->orderServiceImpl->closeNotPayOrder();
-        $this->info('success');
+        $this->info('执行关闭订单成功');
+        return 0;
     }
 }

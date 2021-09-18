@@ -16,6 +16,8 @@ class PayServiceProvider extends ServiceProvider
     {
         $this->app->singleton('alipay', function () {
             $config = config('pay');
+            $config['alipay']['default']['notify_url'] = frp_url('api.alipay.notify');
+            $config['alipay']['default']['return_url'] = frp_url('api.alipay.return');
             return Pay::alipay($config);
         });
 

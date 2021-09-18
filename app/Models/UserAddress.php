@@ -3,9 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class UserAddress extends BaseModel
 {
+    use SoftDeletes;
+
     protected $fillable = [
         'province', 'city', 'district', 'address',
         'zip', 'contact_name', 'contact_phone', 'last_used_at',
