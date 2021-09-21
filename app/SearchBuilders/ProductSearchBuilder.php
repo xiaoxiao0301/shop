@@ -10,7 +10,7 @@ use App\Models\Category;
 class ProductSearchBuilder
 {
     protected $params = [
-        'index' => 'product',
+        'index' => 'products',
         'body' => [
             'query' => [
                 'bool' => [
