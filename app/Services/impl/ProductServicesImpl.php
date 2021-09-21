@@ -93,13 +93,54 @@ class ProductServicesImpl implements ProductServicesIf
             ->limit(10)
             ->get()
             ->toArray();
+
+        // 相似商品，推荐功能
+        $similarProductIds = $this->getSimilarProductIds($product, 4);
+        // 根据 Elasticsearch 搜索出来的商品 ID 从数据库中读取商品数据
+        $similarProducts = Product::query()->byIds($similarProductIds)->get();
+//        $similarProducts   = Product::query()
+//            ->whereIn('id', $similarProductIds)
+//            ->orderByRaw(sprintf("FIND_IN_SET(id, '%s')", join(',', $similarProductIds)))
+//            ->get();
+
         return [
             'product' => $product->toArray(),
             'skus' => $skus,
             'properties' => $properties,
-            'reviews' => $reviews
+            'reviews' => $reviews,
+            'similar' => $similarProducts,
         ];
     }
+
+    /**
+     * 获取推荐商品IDS
+     *
+     * @param Product $product
+     * @param $amount
+     * @return array
+     */
+    public function getSimilarProductIds(Product $product, $amount)
+    {
+        // 如果商品没有商品属性，则直接返回空
+        if (count($product->properties) === 0) {
+            return [];
+        }
+        // 相似商品，推荐功能
+        $builder = (new ProductSearchBuilder())->onSale()->paginate($amount, 1);
+        foreach ($product->properties as $property) {
+            // 添加到 should 条件中
+            $builder->propertyFilter($property->name, $property->value, 'should');
+        }
+        // 设置最少匹配一半属性
+        $builder->minShouldMatch(ceil(count($product->properties) / 2));
+        $params = $builder->getParams();
+        // 同时将当前商品的 ID 排除
+        $params['body']['query']['bool']['must_not'] = [['term' => ['_id' => $product->id]]];
+        // 搜索
+        $result = app('es')->search($params);
+        return collect($result['hits']['hits'])->pluck('_id')->all();
+    }
+
 
     public function getProductListsFromEs($page, $size, $search = null, $order = null, $category = null, $filter = null, $shopId = null)
     {
@@ -149,12 +190,14 @@ class ProductServicesImpl implements ProductServicesIf
         $totalPage = ceil($countNumber / $size);
         // 通过 collect 函数将返回结果转为集合，并通过集合的 pluck 方法取到返回的商品 ID 数组
         $productIds = collect($result['hits']['hits'])->pluck('_id')->all();
-        $products = Product::query()
-            ->whereIn('id', $productIds)
-            // 根据指定顺序返回数据
-            ->orderByRaw(DB::raw("FIND_IN_SET(id, '" . implode(',', $productIds) . "'" . ')'))
+//        $products = Product::query()
+//            ->whereIn('id', $productIds)
+//             根据指定顺序返回数据
+//            ->orderByRaw(DB::raw("FIND_IN_SET(id, '" . implode(',', $productIds) . "'" . ')'))
 //            ->orderByRaw(sprintf("FIND_IN_SET(id, '%s')", join(',', $productIds)))
-            ->get();
+//            ->get();
+        // 调用模型的局部作用域
+        $products = Product::query()->byIds($productIds)->get();
 
         $categoryTreeData = $this->productListsWithCategoryNameAndSubCategoryName($category);
 

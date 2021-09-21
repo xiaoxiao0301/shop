@@ -4,6 +4,7 @@ namespace App\Models;
 
 
 use Arr;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -131,4 +132,15 @@ class Product extends BaseModel
 
         return $arr;
     }
+
+    /**
+     * @param Builder $query
+     * @param $ids
+     * @return mixed
+     */
+    public function scopeByIds($query, $ids)
+    {
+        return $query->whereIn('id', $ids)->orderByRaw(sprintf("FIND_IN_SET(id, '%s')", join(',', $ids)));
+    }
+
 }

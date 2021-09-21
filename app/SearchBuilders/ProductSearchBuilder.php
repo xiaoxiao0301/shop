@@ -134,9 +134,9 @@ class ProductSearchBuilder
      * @param $value
      * @return $this
      */
-    public function propertyFilter($name, $value)
+    public function propertyFilter($name, $value, $type = 'filter')
     {
-        $this->params['body']['query']['bool']['filter'][] = [
+        $this->params['body']['query']['bool'][$type][] = [
             'nested' => [
                 'path'  => 'properties',
                 'query' => [
@@ -144,6 +144,19 @@ class ProductSearchBuilder
                 ],
             ],
         ];
+
+        return $this;
+    }
+
+    /**
+     * should查询至少满足的条件
+     *
+     * @param $count
+     * @return $this
+     */
+    public function minShouldMatch($count)
+    {
+        $this->params['body']['query']['bool']['minimum_should_match'] = (int)$count;
 
         return $this;
     }
