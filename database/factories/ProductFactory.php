@@ -39,6 +39,7 @@ class ProductFactory extends Factory
 
         return [
             'title' => $this->faker->word,
+            'long_title' => $this->faker->sentence,
             'description' => $this->faker->sentence,
             'image' => $this->faker->randomElement($productImages),
             'on_sale' => true,

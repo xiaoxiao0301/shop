@@ -2,6 +2,7 @@
 
 namespace App\Admin\Controllers;
 
+use App\Jobs\SyncOneProductToES;
 use App\Models\Category;
 use App\Models\Product;
 use Dcat\Admin\Form;
@@ -67,11 +68,12 @@ abstract class CommonProductsController extends AdminController
 
     protected function form()
     {
-        return Form::make(Product::with(['crowdfunding','skus']), function (Form $form) {
+        return Form::make(Product::with(['crowdfunding','skus', 'properties']), function (Form $form) {
             $form->display('id');
             //  在表单页面中添加一个名为 type 的隐藏字段，值为当前商品类型
             $form->hidden('type')->value($this->getProductType());
             $form->text('title', '商品名称')->rules('required');
+            $form->text('long_title', '商品长标题')->rules('required');
             // 添加一个类目字段，与之前类目管理类似，使用 Ajax 的方式来搜索添加
             $form->select('category_id', '类目')->options(function ($id) {
                 $category = Category::find($id);
@@ -93,10 +95,21 @@ abstract class CommonProductsController extends AdminController
                 $form->text('stock', '库存')->rules('required|integer|min:0');
             });
 
+            $form->hasMany('properties', '商品属性', function (Form\NestedForm $form) {
+                $form->text('name', '属性名')->rules('required');
+                $form->text('value', '属性值')->rules('required');
+            });
+
             // 修改模型中的数据需要配合隐藏表单使用
             $form->hidden('price');
             $form->saving(function (Form $form) {
                 $form->price = collect($form->input('skus'))->where(Form::REMOVE_FLAG_NAME, 0)->min('price') ?: 0;
+            });
+
+            $form->saved(function (Form $form) {
+                /** @var Product $product */
+                $product = $form->model();
+                dispatch(new SyncOneProductToES($product));
             });
 
             // 禁用编辑页面删除按钮

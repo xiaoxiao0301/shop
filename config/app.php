@@ -179,6 +179,7 @@ return [
         App\Providers\SnowflakeServiceProvider::class,
 
         App\Providers\PayServiceProvider::class,
+        App\Providers\EsServicesProvider::class,
     ],
 
     /*

@@ -61,6 +61,59 @@ $ composer require overtrue/easy-sms
 $ composer require brick/math
 ```
 
+> Elasticsearch
+
+```shell
+$ composer require elasticsearch/elasticsearch
+```
+
+
+```shell
+$ docker pull elasticsearch:7.14.1
+$ docker run -d --name es -p 9200:9200 -p 9300:9300 -e "discovery.type=single-node" -e ES_JAVA_OPTS="-Xms200m -Xmx200m" elasticsearch:7.14.1
+```
+> 安装 analysis-ik 中文分词插件
+
+```shell
+$ docker exec -it es /bin/bash
+# ./bin/elasticsearch-plugin install https://github.com/medcl/elasticsearch-analysis-ik/releases/download/v7.14.1/elasticsearch-analysis-ik-7.14.1.zip
+```
+
+> 拷贝配置文件到本地
+
+```shell
+$ cd elasticsearch7
+$ docker cp es:/usr/share/elasticsearch/config ./
+$ docker cp es:/usr/share/elasticsearch/data ./
+$ docker cp es:/usr/share/elasticsearch/plugins ./
+```
+> 编辑配置文件
+
+vim jvm.options
+
+-Xms200m
+-Xmx200m
+
+vim elasticsearch.yml
+
+node.name: master
+http.cors.enabled: true
+http.cors.allow-origin: "*"
+network.host: 0.0.0.0
+
+
+> 重启docker
+
+```shell
+$ docker run -d --name es -p 9200:9200 -p 9300:9300 -e "discovery.type=single-node" -v /Users/xiaoxiao/dev/server/elasticsearch7/config:/usr/share/elasticsearch/config -v /Users/xiaoxiao/dev/server/elasticsearch7/data:/usr/share/elasticsearch/data -v /Users/xiaoxiao/dev/server/elasticsearch7/plugins://usr/share/elasticsearch/plugins elasticsearch:7.14.1
+```
+
+
+
+
+
+
+
 
 # 后台
 
