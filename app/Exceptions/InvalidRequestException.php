@@ -19,6 +19,6 @@ class InvalidRequestException extends Exception
      */
     public function render(Request $request):JsonResponse
     {
-        return ResponseJsonData::responseUnProcessAble($this->message);
+        return ResponseJsonData::responseUnProcessAble($this->message, $this->getCode());
     }
 }

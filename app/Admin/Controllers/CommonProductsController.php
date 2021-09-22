@@ -5,10 +5,13 @@ namespace App\Admin\Controllers;
 use App\Jobs\SyncOneProductToES;
 use App\Models\Category;
 use App\Models\Product;
+use App\Models\ProductSku;
 use Dcat\Admin\Form;
 use Dcat\Admin\Grid;
 use Dcat\Admin\Http\Controllers\AdminController;
 use Dcat\Admin\Layout\Content;
+use Illuminate\Support\Facades\Redis;
+use Log;
 
 abstract class CommonProductsController extends AdminController
 {
@@ -46,9 +49,9 @@ abstract class CommonProductsController extends AdminController
             $this->customGrid($grid);
 
             // 开启弹窗创建表单
-            $grid->enableDialogCreate();
+//            $grid->enableDialogCreate();
             // 设置弹窗的宽，高
-            $grid->setDialogFormDimensions('65%', '75%');
+//            $grid->setDialogFormDimensions('65%', '75%');
 
             // 禁用过滤器按钮
             $grid->disableFilterButton();
@@ -68,7 +71,7 @@ abstract class CommonProductsController extends AdminController
 
     protected function form()
     {
-        return Form::make(Product::with(['crowdfunding','skus', 'properties']), function (Form $form) {
+        return Form::make(Product::with(['seckill','crowdfunding','skus','properties']), function (Form $form) {
             $form->display('id');
             //  在表单页面中添加一个名为 type 的隐藏字段，值为当前商品类型
             $form->hidden('type')->value($this->getProductType());
@@ -104,12 +107,6 @@ abstract class CommonProductsController extends AdminController
             $form->hidden('price');
             $form->saving(function (Form $form) {
                 $form->price = collect($form->input('skus'))->where(Form::REMOVE_FLAG_NAME, 0)->min('price') ?: 0;
-            });
-
-            $form->saved(function (Form $form) {
-                /** @var Product $product */
-                $product = $form->model();
-                dispatch(new SyncOneProductToES($product));
             });
 
             // 禁用编辑页面删除按钮

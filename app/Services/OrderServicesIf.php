@@ -25,5 +25,7 @@ interface OrderServicesIf
 
     public function createCrowdfundingOrder(User $user, UserAddress $address, ProductSku $productSku, $amount);
 
+    public function createSeckillOrder(User $user, array $addressData, ProductSku $productSku);
+
     public function refundOrder(Order $order);
 }

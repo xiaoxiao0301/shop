@@ -92,15 +92,16 @@ class ResponseJsonData
      * 返回422响应
      *
      * @param string $message
+     * @param int $code
      * @return JsonResponse
      */
-    public static function responseUnProcessAble(string $message):JsonResponse
+    public static function responseUnProcessAble(string $message, int $code = HttpCodes::STATUS_UNPROCESSABLE_ENTITY):JsonResponse
     {
         return self::returnData(
             FrontCodes::CODE_INVALID_REQUEST,
             $message,
             [],
-            HttpCodes::STATUS_UNPROCESSABLE_ENTITY
+            $code
         );
     }
 

@@ -5,6 +5,7 @@ namespace App\Exceptions;
 use App\Dict\ResponseJsonData;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class Handler extends ExceptionHandler
@@ -41,6 +42,10 @@ class Handler extends ExceptionHandler
 
         $this->renderable(function (NotFoundHttpException $exception, $request) {
             return ResponseJsonData::responseNotFound('数据不存在');
+        });
+
+        $this->renderable(function (AccessDeniedHttpException $exception, $request) {
+           return ResponseJsonData::responseUnAuthorization($exception->getMessage());
         });
     }
 }

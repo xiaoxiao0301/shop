@@ -24,4 +24,5 @@ Route::group([
     $router->resource('categories', 'CategoryController');
     $router->get('api/categories', 'CategoryController@ApiCategories');
     $router->resource('crowdfunding_products', 'CrowdfundingProductController');
+    $router->resource('seckill_products', 'SeckillProductController');
 });

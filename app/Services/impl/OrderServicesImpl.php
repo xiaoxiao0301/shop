@@ -6,6 +6,7 @@ use App\Dict\RedisCacheKeys;
 use App\Dict\ResponseJsonData;
 use App\Events\OrderPaid;
 use App\Events\OrderReviewed;
+use App\Exceptions\InternalBusyException;
 use App\Exceptions\InvalidRequestException;
 use App\Jobs\RefundInstallmentOrder;
 use App\Models\Coupon;
@@ -173,6 +174,61 @@ class OrderServicesImpl implements OrderServicesIf
         $this->addUnPayOrderToRedisList($order, $orderLimitAtSec);
         return ResponseJsonData::responseOk($order->toArray());
     }
+
+    /**
+     * 创建秒杀订单
+     *
+     * @param User $user
+     * @param array $addressData
+     * @param ProductSku $productSku
+     * @return JsonResponse
+     * @throws Throwable
+     * @throws InternalBusyException
+     */
+    public function createSeckillOrder(User $user, array $addressData, ProductSku $productSku)
+    {
+        DB::beginTransaction();
+        try {
+            $order = Order::create([
+                'address' => [
+                    'address' => $addressData['province'].$addressData['city'].$addressData['district'].$addressData['address'],
+                    'zip' => $addressData['zip'],
+                    'contact_name' => $addressData['contact_name'],
+                    'contact_phone' => $addressData['contact_phone'],
+                ],
+                'remark' => '',
+                'total_amount' => $productSku->price,
+                'type' => Order::TYPE_SECKILL,
+            ]);
+//             订单关联用户
+            $order->user()->associate($user);
+            $order->save();
+            // 订单详情 OrderItem
+            $orderItem = $order->items()->make([
+                'amount' => 1, // 秒杀商品只能一份
+                'price' => $productSku->price,
+            ]);
+            $orderItem->product()->associate($productSku->product_id);
+            $orderItem->productSku()->associate($productSku);
+            $orderItem->save();
+            // 减库存
+            if ($productSku->decreaseStock(1) <= 0) {
+                throw new InvalidRequestException('商品库存不足');
+            }
+
+            // 成功下单，库存减一
+            Redis::decr(RedisCacheKeys::SECKILL_PRODUCT_STOCK_KEY . $productSku->id);
+
+            DB::commit();
+        } catch (InvalidRequestException $exception) {
+            DB::rollBack();
+            return ResponseJsonData::responseUnProcessAble($exception->getMessage());
+        }
+        // 将秒杀订单也放入队列中去处理
+        $this->addUnPayOrderToRedisList($order, RedisCacheKeys::SECKILL_ORDER_PAY_LIMIT_SEC);
+        return ResponseJsonData::responseOk($order->toArray());
+    }
+
 
     /**
      * 订单列表
@@ -486,8 +542,15 @@ class OrderServicesImpl implements OrderServicesIf
              */
             DB::transaction(function ()  use ($order, $couponId) {
                 $order->update(['closed' => true]);
-                foreach ($order->items as $sku) {
-                    $sku->productSku->addStock($sku->amount);
+                foreach ($order->items as $item) {
+                    $item->productSku->addStock($item->amount);
+                    // 当前订单类型是秒杀订单，并且对应商品是上架且尚未到截止时间
+                    if ($item->order->type === Order::TYPE_SECKILL
+                        && $item->product->on_sale
+                        && !$item->product->seckill->is_after_end ) {
+                        // 将 Redis 中的库存 +1
+                        Redis::incr(RedisCacheKeys::SECKILL_PRODUCT_STOCK_KEY . $item->productSku->id);
+                    }
                 }
                 if (!is_null($couponId)) {
                     $user = User::query()->where('user_id', $order->user_id)->first();

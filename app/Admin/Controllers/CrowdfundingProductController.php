@@ -3,6 +3,7 @@
 namespace App\Admin\Controllers;
 
 use App\Admin\Repositories\CrowdfundingProduct;
+use App\Jobs\SyncOneProductToES;
 use App\Models\Product;
 use Dcat\Admin\Form;
 use Dcat\Admin\Grid;
@@ -47,25 +48,16 @@ class CrowdfundingProductController extends CommonProductsController
         // 添加众筹相关字段
         $form->text('crowdfunding.target_amount', '众筹目标金额')->rules('required|numeric|min:0.01');
         $form->datetime('crowdfunding.end_time', '众筹结束时间')->rules('required|date');
-    }
 
-    /**
-     * Make a show builder.
-     *
-     * @param mixed $id
-     *
-     * @return Show
-     */
-    protected function detail($id)
-    {
-        return Show::make($id, new CrowdfundingProduct(), function (Show $show) {
-            $show->field('id');
-            $show->field('product_id');
-            $show->field('target_amount');
-            $show->field('total_amount');
-            $show->field('user_count');
-            $show->field('end_time');
-            $show->field('status');
+        $form->saved(function (Form $form, $result) {
+            if ($form->isCreating()) {
+                $productId = $result;
+                $product = Product::find($productId);
+            } else {
+                /** @var Product $product */
+                $product = $form->model();
+            }
+            dispatch(new SyncOneProductToES($product));
         });
     }
 

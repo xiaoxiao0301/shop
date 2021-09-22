@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\InstallmentsController;
 use App\Http\Controllers\Api\OrdersController;
 use App\Http\Controllers\Api\PaysController;
 use App\Http\Controllers\Api\ProductsController;
+use App\Http\Controllers\Api\SeckillController;
 use App\Http\Controllers\Api\UserAddressesController;
 use App\Http\Controllers\Api\UsersController;
 use Illuminate\Support\Facades\Route;
@@ -24,27 +25,16 @@ use Illuminate\Support\Facades\Route;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
-Route::get('t', function () {
-//    $orderNo = "5591324757590016";
-//    $totalAmount = 100;
-//
-//    return app('alipay')->web([
-//        'out_trade_no' => $orderNo,
-//        'total_amount' => $totalAmount,
-//        'subject' => '支付 Laravel Shop 的订单：'. $orderNo,
-//        'notify_url' => frp_url('api.alipay.notify'),
-//        'return_url' => frp_url('api.alipay.return')
-//    ]);
-//    /** @var \App\Models\Order $order */
-//    $order = \App\Models\Order::query()->where('order_no', '5591324757590016')->first();
-//    event(new \App\Events\OrderPaid($order));
-//    return \Brick\Math\BigDecimal::of(10)->multipliedBy(0.0001)->multipliedBy(10000);
-//    return \Brick\Math\BigDecimal::of(10)->multipliedBy(10000)->multipliedBy(0.0001);
-});
 
 // v1 版本的api接口
 $version = "v1";
 Route::prefix($version)->group(function () {
+
+    // |------------------------ 秒杀  ------------------------|
+    // 优化秒杀接口，将身份认证放到最后去做
+    Route::post('seckill_orders', [SeckillController::class, 'store'])
+        ->name('api.seckill.order.create')->middleware('random_drop:80');
+
     // |---------------------------------------- 不用登陆就能访问的接口   ------------------------|
 
     // 注册，登陆获取验证码
@@ -198,6 +188,9 @@ Route::prefix($version)->group(function () {
         // 微信支付
         Route::post('installments/{installment}/wechat', [PaysController::class, 'installmentWechatPay'])
             ->name('api.installment.pay.wechat');
+
+
+
 
     });
 
