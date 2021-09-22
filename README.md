@@ -320,6 +320,13 @@ task('deploy:yarn', function () {
     run('cd {{release_path}} && SASS_BINARY_SITE=http://npm.taobao.org/mirrors/node-sass yarn && yarn production', ['timeout' => 600]);
 })
 
+// 定义一个horizon任务
+desc('Restart Horizon')
+task('horizon:restart', function () {
+    // {{bin/php}} 是 Deployer 内置的变量，是 PHP 程序的绝对路径。
+    run('{{bin/php}} {{release_path}}/artisan horizon:terminate');
+});
+
 // 在 deploy:vendors 之前调用 deploy:copy_dirs
 before('deploy:vendors', 'deploy:copy_dirs');
 
@@ -334,6 +341,10 @@ after('deploy:failed', 'deploy:unlock');
 
 // Deployer 的 laravel 部署脚本内已经内置了 artisan:route:cache 这个任务，前提是路由文件不能有闭包调用
 after('artisan:config:cache', 'artisan:route:cache');
+
+// deploy:symlink 任务是将 current 链接到最新的代码目录。
+// 在 deploy:symlink 任务之后执行 horizon:restart 任务
+after('deploy:symlink', 'horizon:restart');
 
 // Migrate database before symlink new release.
 
@@ -374,6 +385,9 @@ $ sudo -H -u www-data sh -c
 
 # 使用 Horizon 管理定时任务
 
+> horizon:terminate 这个命令，它可以『优雅地』停止 Horizon 进程，
+
+
 ```shell
 $ composer require laravel/horizon
 ```
@@ -387,6 +401,33 @@ $ composer require laravel/horizon
 $ php artisan horizon
 ````
 
+# Supervisor 来启动 Horizon。
+
+```shell
+$ vim /etc/supervisor/conf.d/laravel-shop.conf  # 当前站点的配置文件
+```
+```conf
+[program:laravel-shop-horizon]
+process_name=%(program_name)s  # 代表这个进程在 Supervisor 内部的命名；
+command=php /var/www/laravel-shop-deployer/current/artisan horizon
+autostart=true # 代表这个进程跟随 Supervisor，只要 Supervisor 启动了，就启动这个进程；
+autorestart=true # 代表要求 Supervisor 监听进程状态，假如异常退出就再次启动；
+user=www-data # 代表要求 Supervisor 监听进程状态，假如异常退出就再次启动；
+redirect_stderr=true # 代表输出错误信息；
+stdout_logfile=/var/www/laravel-shop-deployer/current/storage/logs/worker.log
+```
+
+```shell
+$ supervisorctl update # 重启Supervisor，加载配置文件
+$ supervisorctl status
+```
+
+# 定时任务 Cron
+
+```shell
+$ crontab -e -u www-data
+* * * * * php /var/www/laravel-shop-deployer/current/artisan schedule:run >> /var/www/laravel-shop-deployer/current/storage/logs/cron.log 2>&1
+```
 
 
 
