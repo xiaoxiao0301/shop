@@ -181,6 +181,197 @@ $ vim app/Providers/AppServiceProvider
   }
 ```
 
+# Deployer 部署工具
+
+```shell
+$ composer global require deployer/deployer
+```
+将 deployer目录下的bin目录设置到环境变量中
+- /Users/xiaoxiao/.composer/vendor/deployer/deployer/bin
+```shell
+dep
+Deployer v6.8.0
+
+Usage:
+  command [options] [arguments]
+
+Options:
+  -h, --help            Display help for the given command. When no command is given display help for the list command
+  -q, --quiet           Do not output any message
+  -V, --version         Display this application version
+      --ansi|--no-ansi  Force (or disable --no-ansi) ANSI output
+  -n, --no-interaction  Do not ask any interactive question
+  -f, --file[=FILE]     Specify Deployer file
+  -v|vv|vvv, --verbose  Increase the verbosity of messages: 1 for normal output, 2 for more verbose output and 3 for debug
+
+Available commands:
+  autocomplete  Install command line autocompletion capabilities
+  help          Display help for a command
+  init          Initialize deployer in your project
+  list          List commands
+  run           Run any arbitrary command on hosts
+  ssh           Connect to host through ssh
+ debug
+  debug:task    Display the task-tree for a given task
+```
+创建部署脚本
+```shell
+$ mkdir deploy-laravel-shop
+$ dep init
+deploy-laravel-project dep init
+
+
+  Welcome to the Deployer config generator
+
+
+
+ This utility will walk you through creating a deploy.php file.
+ It only covers the most common items, and tries to guess sensible defaults.
+
+ Press ^C at any time to quit.
+
+ Please select your project type [Common]:
+  [0 ] Common
+  [1 ] Laravel
+  [2 ] Symfony
+  [3 ] Yii
+  [4 ] Yii2 Basic App
+  [5 ] Yii2 Advanced App
+  [6 ] Zend Framework
+  [7 ] CakePHP
+  [8 ] CodeIgniter
+  [9 ] Drupal
+  [10] TYPO3
+ > 1
+
+ Repository []:
+ > https://github.com/xiaoxiao0301/shop.git  # 远程代码仓库
+ Contribute to the Deployer Development
+
+ In order to help development and improve the features in Deployer,
+ Deployer has a setting for usage data collection. This function
+ collects anonymous usage data and sends it to Deployer. The data is
+ used in Deployer development to get reliable statistics on which
+ features are used (or not used). The information is not traceable
+ to any individual or organization. Participation is voluntary,
+ and you can change your mind at any time.
+
+ Anonymous usage data contains Deployer version, php version, os type,
+ name of the command being executed and whether it was successful or not,
+ exception class name, count of hosts and anonymized project hash.
+
+ If you would like to allow us to gather this information and help
+ us develop a better tool, please add the code below.
+
+     set('allow_anonymous_stats', true);
+
+ This function will not affect the performance of Deployer as
+ the data is insignificant and transmitted in a separate process.
+
+ Do you confirm? (yes/no) [yes]:  # 询问是否允许 Deployer 收集匿名的部署数据以改善项目，大家根据自己的情况填入 yes 或者 no：
+ > yes
+
+Successfully created: /Users/xiaoxiao/dev/codes/php/deploy-laravel-project/deploy.php
+```
+
+将本地的 .env文件复制一份，放到 deploy.php 同一目录下然后修改配置成线上环境
+编辑生成的部署脚本 deploy.php 修改成自己对应的环境
+```shell
+$ vim deploy.php
+```
+```php
+<?php
+namespace Deployer;
+
+require 'recipe/laravel.php';
+
+// Project repository
+set('repository', 'https://github.com/xiaoxiao0301/shop.git');
+
+// Shared files/dirs between deploys
+add('shared_files', []);
+add('shared_dirs', []);
+
+// 内置了一个名为 deploy:copy_dirs 的任务，这个任务会遍历 copy_dirs 这个变量里的目录，然后从上一个代码版本目录里将对应的目录复制到当前目录里来
+// 顺便把 composer 的 vendor 目录也加进来, 加速yarn
+add('copy_dirs', ['node_modules', 'vendor']);
+
+// Writable dirs by web server
+set('writable_dirs', []);
+
+host('阿里云公网IP')
+    ->user('root') // 使用 root 账号登录
+    ->identityFile('~/.ssh/laravel-shop-aliyun.pem') // 指定登录密钥文件路径
+    ->become('www-data') // 以 www-data 身份执行命令
+    ->set('deploy_path', '/var/www/laravel-shop-deployer'); // 指定部署目录
+    
+// 定义一个上传 .env 文件的任务    
+desc('Upload .env file')
+task('env:upload', function () {
+    // 将本地的 .env 文件上传到代码目录的 .env
+    upload('.env', '{{release_path}}/.env');
+});
+
+// 定义一个前端编译的任务， 项目不涉及页面的话不需要
+desc('Yarn')
+// release_path 是 Deployer 的一个内部变量，代表当前代码目录路径
+task('deploy:yarn', function () {
+    // run() 的默认超时时间是 5 分钟，而 yarn 相关的操作又比较费时，因此我们在第二个参数传入 timeout = 600，指定这个命令的超时时间是 10 分钟
+    run('cd {{release_path}} && SASS_BINARY_SITE=http://npm.taobao.org/mirrors/node-sass yarn && yarn production', ['timeout' => 600]);
+})
+
+// 在 deploy:vendors 之前调用 deploy:copy_dirs
+before('deploy:vendors', 'deploy:copy_dirs');
+
+// 定义一个后置钩子，在 deploy:shared 之后执行 env:update 任务
+after('deploy:shared', 'env:upload');
+
+// 定义一个后置钩子，在 deploy:vendors 之后执行 deploy:yarn 任务
+after('deploy:vendors', 'deploy:yarn');
+
+// [Optional] if deploy fails automatically unlock.
+after('deploy:failed', 'deploy:unlock');
+
+// Deployer 的 laravel 部署脚本内已经内置了 artisan:route:cache 这个任务，前提是路由文件不能有闭包调用
+after('artisan:config:cache', 'artisan:route:cache');
+
+// Migrate database before symlink new release.
+
+before('deploy:symlink', 'artisan:migrate');
+```
+
+执行部署命令
+```shell
+$ dep deploy
+```
+线上目录： 
+/var/www/laravel-shop-deployer
+current -> release/1   # 这个是软连，每部署一次，会生成一个 release/n 
+release
+    1
+shared
+    storage  # 所有版本共享 storage目录
+
+因此线上nginx配置目录需要设置到 root  /var/www/laravel-shop-deployer/current/public
+
+
+## SSH配置秘钥登陆
+
+``shell
+$ chmod 600 ~/.ssh/ssh-root.pem
+$ vim ~/.ssh/config
+Host IP
+    PubkeyAuthentication yes
+    IdentityFile ~/.ssh/ssh-root.pem
+$ ssh root@IP
+``
+
+## www-data
+
+```shell
+$ sudo -H -u www-data sh -c
+```
+
 
 
 # 后台
