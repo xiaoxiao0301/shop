@@ -372,6 +372,22 @@ $ ssh root@IP
 $ sudo -H -u www-data sh -c
 ```
 
+# 使用 Horizon 管理定时任务
+
+```shell
+$ composer require laravel/horizon
+```
+访问 http://local.shop.cn/horizon 看看 Horizon 的管理面板：
+
+默认情况下这个页面只能在 APP_ENV=local 的环境可以看到，所以不用担心线上站点信息泄露。
+
+可以看到状态是 Inactive，我们需要在终端调用 Horizon 的命令来启动：
+
+```shell
+$ php artisan horizon
+````
+
+
 
 
 # 后台
@@ -389,4 +405,9 @@ $ composer require dcat/laravel-admin:"2.*" -vvv
 > swagger
 ```shell
 $ composer require "darkaonline/l5-swagger"
+$ php artisan vendor:publish --provider="Laravel\Horizon\HorizonServiceProvider"
+Copied Directory [/vendor/laravel/horizon/public] To [/public/vendor/horizon]
+Copied File [/vendor/laravel/horizon/stubs/HorizonServiceProvider.stub] To [/app/Providers/HorizonServiceProvider.php]
+Copied File [/vendor/laravel/horizon/config/horizon.php] To [/config/horizon.php]
+Publishing complete.
 ```

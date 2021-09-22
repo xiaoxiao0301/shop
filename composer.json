@@ -19,6 +19,7 @@
         "godruoyi/php-snowflake": "^1.1",
         "guzzlehttp/guzzle": "^7.0.1",
         "laravel/framework": "^8.0",
+        "laravel/horizon": "^5.7",
         "laravel/tinker": "^2.0",
         "overtrue/easy-sms": "^1.3",
         "overtrue/laravel-lang": "^5.0",
