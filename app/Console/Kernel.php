@@ -28,7 +28,7 @@ class Kernel extends ConsoleKernel
         // 每分钟执行一次，众筹订单
         $schedule->command('cron:finish-crowdfunding')->everyMinute();
         // 关闭未支付订单
-        $schedule->command('cron:close-order')->everyMinute();
+//        $schedule->command('cron:close-order')->everyMinute();
         // 计算分期付款逾期费率 daily() 代表每天凌晨 00:00 执行
         $schedule->command('cron:calculate-installment-fine')->daily();
     }

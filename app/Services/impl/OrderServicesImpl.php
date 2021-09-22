@@ -8,6 +8,7 @@ use App\Events\OrderPaid;
 use App\Events\OrderReviewed;
 use App\Exceptions\InternalBusyException;
 use App\Exceptions\InvalidRequestException;
+use App\Jobs\CloseOrder;
 use App\Jobs\RefundInstallmentOrder;
 use App\Models\Coupon;
 use App\Models\Order;
@@ -117,7 +118,8 @@ class OrderServicesImpl implements OrderServicesIf
             return ResponseJsonData::responseUnProcessAble($exception->getMessage());
         }
         $couponId = $coupon ? $coupon->id : null;
-        $this->addUnPayOrderToRedisList($order, RedisCacheKeys::ORDER_PAY_LIMIT_SEC, $couponId);
+//        $this->addUnPayOrderToRedisList($order, RedisCacheKeys::ORDER_PAY_LIMIT_SEC, $couponId);
+        dispatch(new CloseOrder($order, $couponId, RedisCacheKeys::ORDER_PAY_LIMIT_SEC));
         return ResponseJsonData::responseOk($order->toArray());
     }
 
@@ -171,7 +173,8 @@ class OrderServicesImpl implements OrderServicesIf
         }
         // 将众筹订单也放入队列中去处理
         $orderLimitAtSec = $productSku->product->crowdfunding->end_time->getTimestamp() - time();
-        $this->addUnPayOrderToRedisList($order, $orderLimitAtSec);
+//        $this->addUnPayOrderToRedisList($order, $orderLimitAtSec);
+        dispatch(new CloseOrder($order, null, min(RedisCacheKeys::ORDER_PAY_LIMIT_SEC, $orderLimitAtSec)));
         return ResponseJsonData::responseOk($order->toArray());
     }
 
@@ -225,7 +228,8 @@ class OrderServicesImpl implements OrderServicesIf
             return ResponseJsonData::responseUnProcessAble($exception->getMessage());
         }
         // 将秒杀订单也放入队列中去处理
-        $this->addUnPayOrderToRedisList($order, RedisCacheKeys::SECKILL_ORDER_PAY_LIMIT_SEC);
+//        $this->addUnPayOrderToRedisList($order, RedisCacheKeys::SECKILL_ORDER_PAY_LIMIT_SEC);
+        dispatch(new CloseOrder($order, null, RedisCacheKeys::SECKILL_ORDER_PAY_LIMIT_SEC));
         return ResponseJsonData::responseOk($order->toArray());
     }
 

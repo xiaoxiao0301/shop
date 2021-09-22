@@ -13,6 +13,7 @@ use App\Http\Controllers\Api\ProductsController;
 use App\Http\Controllers\Api\SeckillController;
 use App\Http\Controllers\Api\UserAddressesController;
 use App\Http\Controllers\Api\UsersController;
+use App\Models\User;
 use Illuminate\Support\Facades\Route;
 
 /*
